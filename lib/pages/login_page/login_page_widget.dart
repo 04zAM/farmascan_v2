@@ -26,6 +26,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   final apiService = ApiService();
   bool _isLoading = false;
 
+  final _focusNode1 = FocusNode();
+  final _focusNode2 = FocusNode();
+  final _focusNode3 = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -39,7 +43,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   @override
   void dispose() {
     _model.dispose();
-
+    _focusNode1.dispose();
+    _focusNode2.dispose();
+    _focusNode3.dispose();
     super.dispose();
   }
 
@@ -48,7 +54,6 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
     final ipPharma = _model.textController1?.text;
     final username = _model.textController2?.text;
     final password = _model.textController3?.text;
-
     try {
       if (ipPharma != null && username != null && password != null) {
         setState(() {
@@ -57,7 +62,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
 
         final userData =
             await apiService.loginUser(ipPharma, username, password);
-
+        prefs.setString('ipPharma', ipPharma);
         prefs.setString(
             'nombre', capitalizeFirstLetter(userData.mensaje.nombre));
         prefs.setString('cedula', userData.mensaje.cedula);
@@ -86,10 +91,12 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         _isLoading = false;
       });
 
+      print(error);
+
       QuickAlert.show(
         context: context,
         type: QuickAlertType.info,
-        text: error.toString(),
+        text: error.toString().replaceAll('Exception: ', ''),
       );
     }
   }
@@ -174,6 +181,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               0.0, 0.0, 0.0, 16.0),
                           child: TextFormField(
                             controller: _model.textController1,
+                            focusNode: _focusNode1,
+                            onEditingComplete: () {
+                              FocusScope.of(context).requestFocus(_focusNode2);
+                            },
                             obscureText: false,
                             decoration: InputDecoration(
                               labelText: 'IP Farmacia',
@@ -187,21 +198,21 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Color(0x00000000),
+                                  color: FlutterFlowTheme.of(context).primary,
                                   width: 2.0,
                                 ),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Color(0x00000000),
+                                  color: FlutterFlowTheme.of(context).primary,
                                   width: 2.0,
                                 ),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               focusedErrorBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Color(0x00000000),
+                                  color: FlutterFlowTheme.of(context).primary,
                                   width: 2.0,
                                 ),
                                 borderRadius: BorderRadius.circular(12.0),
@@ -217,6 +228,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               0.0, 0.0, 0.0, 16.0),
                           child: TextFormField(
                             controller: _model.textController2,
+                            focusNode: _focusNode2,
+                            onEditingComplete: () {
+                              FocusScope.of(context).requestFocus(_focusNode3);
+                            },
                             obscureText: false,
                             decoration: InputDecoration(
                               labelText: 'Usuario',
@@ -230,21 +245,21 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Color(0x00000000),
+                                  color: FlutterFlowTheme.of(context).primary,
                                   width: 2.0,
                                 ),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Color(0x00000000),
+                                  color: FlutterFlowTheme.of(context).primary,
                                   width: 2.0,
                                 ),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               focusedErrorBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Color(0x00000000),
+                                  color: FlutterFlowTheme.of(context).primary,
                                   width: 2.0,
                                 ),
                                 borderRadius: BorderRadius.circular(12.0),
@@ -260,6 +275,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               0.0, 0.0, 0.0, 16.0),
                           child: TextFormField(
                             controller: _model.textController3,
+                            focusNode: _focusNode3,
+                            onEditingComplete: () {
+                              _loginUser();
+                              FocusScope.of(context).unfocus();
+                            },
                             obscureText: !_model.passwordVisibility,
                             decoration: InputDecoration(
                               labelText: 'Contraseña',
@@ -273,21 +293,21 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Color(0x00000000),
+                                  color: FlutterFlowTheme.of(context).primary,
                                   width: 2.0,
                                 ),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Color(0x00000000),
+                                  color: FlutterFlowTheme.of(context).primary,
                                   width: 2.0,
                                 ),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               focusedErrorBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Color(0x00000000),
+                                  color: FlutterFlowTheme.of(context).primary,
                                   width: 2.0,
                                 ),
                                 borderRadius: BorderRadius.circular(12.0),

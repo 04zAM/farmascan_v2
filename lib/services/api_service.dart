@@ -5,18 +5,20 @@ import 'package:app_farma_scan_v2/models/documentData_model.dart';
 import 'package:app_farma_scan_v2/models/documentFieldsData_model.dart';
 import 'package:app_farma_scan_v2/models/userData_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final timeoutDuration = Duration(seconds: 20);
+  final timeoutDuration = Duration(seconds: 60);
   String ipDigitalizacion = '192.168.240.6/ITEDigitalizacionAPI3';
+  String servicePlataformaMovil = 'ws_plataformamovil/Service1.svc';
 
   Future<UserData> loginUser(
       String ipPharma, String username, String password) async {
-    username = username + "_9"; //Control de version _9
+    username = username + "_10"; //Control de version _9
     try {
       final response = await http
           .get(Uri.parse(
-            'http://$ipPharma/ws_plataformamovil/Service1.svc/AutentificarUsuarioFarmaScan?usuario=$username&contrasenia=$password&ipMovil=$ipPharma&ipMovil2=$ipPharma',
+            'http://$ipPharma/$servicePlataformaMovil/AutentificarUsuarioFarmaScan?usuario=$username&contrasenia=$password&ipMovil=$ipPharma&ipMovil2=$ipPharma',
           ))
           .timeout(timeoutDuration);
 
@@ -165,6 +167,60 @@ class ApiService {
         final utf8DecodedBody = utf8.decode(response.bodyBytes);
         final decodedBody = json.decode(utf8DecodedBody);
         final documentFields = DocumentFieldsData.fromJson(decodedBody);
+        return documentFields;
+      } else {
+        throw Exception('Error de conexión con el servidor');
+      }
+    } on TimeoutException {
+      final timeoutSeconds = timeoutDuration.inSeconds;
+      throw Exception(
+          'Tiempo de espera agotado. No se pudo conectar al servidor en $timeoutSeconds segundos.');
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getDocumentType(String nroComprobante) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final ipPharma = prefs.getString('ipPharma');
+
+      final response = await http
+          .get(Uri.parse(
+              'http://$ipPharma/$servicePlataformaMovil//TipoDocumento?serie=$nroComprobante'))
+          .timeout(timeoutDuration);
+
+      if (response.statusCode == 200) {
+        final utf8DecodedBody = utf8.decode(response.bodyBytes);
+        final decodedBody = json.decode(utf8DecodedBody);
+        return decodedBody;
+      } else {
+        throw Exception('Error de conexión con el servidor');
+      }
+    } on TimeoutException {
+      final timeoutSeconds = timeoutDuration.inSeconds;
+      throw Exception(
+          'Tiempo de espera agotado. No se pudo conectar al servidor en $timeoutSeconds segundos.');
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getBarcodeDocument(
+      String documento, String origenDatos) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final ipPharma = prefs.getString('ipPharma');
+
+      final response = await http
+          .get(Uri.parse(
+              'http://$ipPharma/$servicePlataformaMovil/VerificarFactura?serie=$documento|$origenDatos'))
+          .timeout(timeoutDuration);
+
+      if (response.statusCode == 200) {
+        final utf8DecodedBody = utf8.decode(response.bodyBytes);
+        final decodedBody = json.decode(utf8DecodedBody);
+        final documentFields = decodedBody['mensaje'];
         return documentFields;
       } else {
         throw Exception('Error de conexión con el servidor');

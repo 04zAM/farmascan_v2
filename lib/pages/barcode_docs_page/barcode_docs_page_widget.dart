@@ -1,3 +1,10 @@
+import 'package:app_farma_scan_v2/models/documentFieldsData_model.dart';
+import 'package:app_farma_scan_v2/services/api_service.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:quickalert/quickalert.dart';
+
+import '../documents_page/documents_page_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -17,6 +24,9 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
   late BarcodeDocsPageModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  final apiService = ApiService();
+
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -33,8 +43,182 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
     super.dispose();
   }
 
+  Future<void> _scanBarcode() async {
+    String barcodeScanResult = await FlutterBarcodeScanner.scanBarcode(
+      "#93EC22",
+      "Regresar",
+      false,
+      ScanMode.BARCODE,
+    );
+
+    if (barcodeScanResult != "-1") {
+      print("Código de barras leído: $barcodeScanResult");
+    } else {
+      print("Escaneo cancelado por el usuario.");
+    }
+  }
+
+  Future<void> _buscarDocumento(String nroComprobante) async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      final response = await apiService.getDocumentType(nroComprobante);
+      if (response['respuesta'].toString().toLowerCase() == "ok") {
+        List<Map<String, dynamic>> documents = [];
+        List<String> fields = response['mensaje'].split(';');
+
+        for (String field in fields) {
+          List<String> parts = field.split('|');
+          if (parts.length == 2) {
+            int? docId = int.tryParse(parts[0]);
+            if (docId != null) {
+              final document = await apiService.getDocument(docId.toString());
+              final departamento = document.departamentoCodigo.toString();
+              final catalogodocuments =
+                  await apiService.getDocumentsByDepartment(departamento);
+              final sql = catalogodocuments
+                  .firstWhere((element) => element.catCodigo == docId)
+                  .catOcr;
+              documents.add({
+                'cat_codigo': docId,
+                'nro_factura': nroComprobante,
+                'cat_sql': sql
+              });
+            }
+          }
+        }
+
+        List documentsInfo = [];
+        List<DocumentFieldsData> documentsStuctures = [];
+
+        for (Map<String, dynamic> document in documents) {
+          final getDocumentInfo = await apiService.getBarcodeDocument(
+              document['nro_factura'], document['cat_sql']);
+          documentsInfo.add(getDocumentInfo);
+
+          final getDocumentTemplate =
+              await apiService.getDocument(document['cat_codigo'].toString());
+
+          documentsStuctures.add(getDocumentTemplate);
+        }
+
+        //Crear un diccionario de documentsInfo
+        Map<String, dynamic> searchMapDI = {};
+        documentsInfo.forEach((map) {
+          map.forEach((key, value) {
+            searchMapDI[key] = value;
+          });
+        });
+
+        //Actualizar datos en propiedades del modelo
+        searchMapDI.forEach((key, value) {
+          for (DocumentFieldsData document in documentsStuctures) {
+            for (Propiedade propiedad in document.propiedades) {
+              if (propiedad.prdCodigo == int.tryParse(key)) {
+                propiedad.datos = value;
+              }
+            }
+          }
+        });
+        print(documentsStuctures[0].toJson());
+        setState(() {
+          _isLoading = false;
+        });
+
+        String mensaje = response['mensaje'];
+
+        // Dividir el mensaje en líneas
+        List<String> lineas = mensaje.split(';');
+
+        // Crear un nuevo mensaje con números de línea
+        String nuevoMensaje = '';
+        for (int i = 0; i < lineas.length; i++) {
+          List<String> partes = lineas[i].split('|');
+          if (partes.length > 1) {
+            nuevoMensaje += '${i + 1}. ${partes[1]}\n';
+          }
+        }
+
+        QuickAlert.show(
+            context: context,
+            type: QuickAlertType.success,
+            title: 'Documentos Encontrados',
+            widget: Text(capitalizeFirstLetter(nuevoMensaje),
+                style: FlutterFlowTheme.of(context).bodyMedium.override(
+                      fontFamily: 'Readex Pro',
+                      fontSize: 16.0,
+                    )),
+            confirmBtnText: 'Aceptar',
+            confirmBtnColor: Colors.indigo,
+            onConfirmBtnTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DocumentsPageWidget(
+                            documentsStructureList: documentsStuctures,
+                          )),
+                ));
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.info,
+          text: response['mensaje'],
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        text: e.toString().replaceAll('Exception: ', ''),
+      );
+    }
+  }
+
+  String capitalizeFirstLetter(String text) {
+    if (text.isEmpty) {
+      return text;
+    }
+
+    return text.toLowerCase().split(' ').map((word) {
+      if (word.isNotEmpty) {
+        return '${word[0].toUpperCase()}${word.substring(1)}';
+      }
+      return '';
+    }).join(' ');
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Container(
+        color: Colors.white,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              LoadingAnimationWidget.stretchedDots(
+                color: Colors.indigo,
+                size: 75,
+              ),
+              SizedBox(height: 16), // Espacio entre la animación y el mensaje
+              Text("Consultando documentos",
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'Readex Pro',
+                      color: Colors.indigo,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none)),
+            ],
+          ),
+        ),
+      );
+    }
     return GestureDetector(
       onTap: () => FocusScope.of(context).requestFocus(_model.unfocusNode),
       child: Scaffold(
@@ -48,7 +232,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
             style: FlutterFlowTheme.of(context).headlineMedium.override(
                   fontFamily: 'Inter',
                   color: Colors.white,
-                  fontSize: 22.0,
+                  fontSize: 18.0,
                 ),
           ),
           actions: [],
@@ -73,7 +257,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                     textAlign: TextAlign.start,
                     style: FlutterFlowTheme.of(context).bodyMedium.override(
                           fontFamily: 'Readex Pro',
-                          fontSize: 22.0,
+                          fontSize: 18.0,
                         ),
                   ),
                   Row(
@@ -186,7 +370,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                       ),
                       FFButtonWidget(
                         onPressed: () {
-                          print('Button pressed ...');
+                          _buscarDocumento(_model.textController.text);
                         },
                         text: 'Buscar',
                         options: FFButtonOptions(
@@ -254,7 +438,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                               padding: EdgeInsetsDirectional.fromSTEB(
                                   0.0, 15.0, 0.0, 0.0),
                               child: Text(
-                                '- Para convenios  y cupones por favor ingrese el número de factura sin guiones.',
+                                '- Para convenios  y cupones por favor ingrese las iniciales 002F y luego el número de documento sin guiones.',
                                 textAlign: TextAlign.justify,
                                 style: FlutterFlowTheme.of(context).bodyMedium,
                               ),
@@ -263,7 +447,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                               padding: EdgeInsetsDirectional.fromSTEB(
                                   0.0, 15.0, 0.0, 0.0),
                               child: Text(
-                                'Ejemplo: 893001000087569 ',
+                                'Ejemplo: OO2F893001000087569 ',
                                 textAlign: TextAlign.justify,
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
@@ -305,7 +489,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                               0.0, 12.0, 0.0, 0.0),
                           child: FFButtonWidget(
                             onPressed: () {
-                              print('Button pressed ...');
+                              _scanBarcode();
                             },
                             text: 'Escanear',
                             options: FFButtonOptions(

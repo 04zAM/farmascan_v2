@@ -61,6 +61,8 @@ dependencies:
   cupertino_icons: ^1.0.0
   quickalert: ^1.0.1
   loading_animation_widget: ^1.2.0+4
+  image_picker: ^1.0.4
+  flutter_barcode_scanner: ^2.0.0
 
 dev_dependencies:
 
