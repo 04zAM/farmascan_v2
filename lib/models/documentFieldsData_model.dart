@@ -19,7 +19,7 @@ class DocumentFieldsData {
   String ipRegistra;
   Propietario propietario;
   List<Propiedade> propiedades;
-  List<dynamic> imagenes;
+  List<Map<String, dynamic>> imagenes;
   List<FarmascanMl> farmascanMl;
 
   DocumentFieldsData({
@@ -56,7 +56,7 @@ class DocumentFieldsData {
                 ?.map((x) => Propiedade.fromJson(x))
                 .toList() ??
             [],
-        imagenes: json["imagenes"] ?? [],
+        imagenes: [],
         farmascanMl: (json["farmascanML"] as List<dynamic>?)
                 ?.map((x) => FarmascanMl.fromJson(x))
                 .toList() ??

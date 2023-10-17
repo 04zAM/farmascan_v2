@@ -6,19 +6,43 @@ import 'package:app_farma_scan_v2/models/documentFieldsData_model.dart';
 import 'package:app_farma_scan_v2/models/userData_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class ApiService {
   final timeoutDuration = Duration(seconds: 60);
   String ipDigitalizacion = '192.168.240.6/ITEDigitalizacionAPI3';
   String servicePlataformaMovil = 'ws_plataformamovil/Service1.svc';
 
+  Future<String> getLocalIp() async {
+    final prefs = await SharedPreferences.getInstance();
+    try {
+      List<NetworkInterface> interfaces = await NetworkInterface.list(
+          includeLoopback: false, type: InternetAddressType.IPv4);
+
+      for (var interface in interfaces) {
+        for (var addr in interface.addresses) {
+          if (addr.isLoopback) {
+            continue;
+          }
+          prefs.setString('ipPhone', addr.address);
+          return addr.address;
+        }
+      }
+
+      throw Exception("No se encontró una dirección IP local");
+    } catch (e) {
+      throw Exception("Error al obtener la dirección IP local: $e");
+    }
+  }
+
   Future<UserData> loginUser(
       String ipPharma, String username, String password) async {
     username = username + "_10"; //Control de version _9
+    String ipPhone = await getLocalIp();
     try {
       final response = await http
           .get(Uri.parse(
-            'http://$ipPharma/$servicePlataformaMovil/AutentificarUsuarioFarmaScan?usuario=$username&contrasenia=$password&ipMovil=$ipPharma&ipMovil2=$ipPharma',
+            'http://$ipPharma/$servicePlataformaMovil/AutentificarUsuarioFarmaScan?usuario=$username&contrasenia=$password&ipMovil=$ipPhone&ipMovil2=$ipPhone',
           ))
           .timeout(timeoutDuration);
 
@@ -222,6 +246,38 @@ class ApiService {
         final decodedBody = json.decode(utf8DecodedBody);
         final documentFields = decodedBody['mensaje'];
         return documentFields;
+      } else {
+        throw Exception('Error de conexión con el servidor');
+      }
+    } on TimeoutException {
+      final timeoutSeconds = timeoutDuration.inSeconds;
+      throw Exception(
+          'Tiempo de espera agotado. No se pudo conectar al servidor en $timeoutSeconds segundos.');
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> postDocuments(
+      DocumentFieldsData documento) async {
+    try {
+      final token = await getTokenITEDigitalizacion();
+      final cabecera = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+      final response = await http
+          .post(
+            Uri.parse('http://$ipDigitalizacion/api/Documento'),
+            headers: cabecera,
+            body: jsonEncode(documento.toJson()),
+          )
+          .timeout(timeoutDuration);
+
+      if (response.statusCode == 200) {
+        final utf8DecodedBody = utf8.decode(response.bodyBytes);
+        final decodedBody = json.decode(utf8DecodedBody);
+        return decodedBody;
       } else {
         throw Exception('Error de conexión con el servidor');
       }

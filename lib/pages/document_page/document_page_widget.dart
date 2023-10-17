@@ -35,6 +35,8 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
   List<FocusNode> textsFocus = [];
   int currentTextFieldIndex = 0;
 
+  List<DocumentFieldsData> documentList = [];
+
   @override
   void initState() {
     super.initState();
@@ -241,12 +243,15 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
   }
 
   void _getDocumentsOrder() async {
+    setState(() {
+      documentList.add(documentFields);
+    });
     if (documentFields.farmascanMl.isEmpty) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => GalleryPageWidget(
-            document: documentFields,
+            documents: documentList,
           ),
         ),
       );
@@ -275,7 +280,7 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => GalleryPageWidget(
-                    document: documentFields,
+                    documents: documentList,
                   ),
                 ),
               ));

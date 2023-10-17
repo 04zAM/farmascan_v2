@@ -27,6 +27,11 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
 
   bool _isLoading = true;
 
+  List<String> imageURLs = [
+    'https://www.farmaenlace.com/wp-content/uploads/2022/07/logo-economicas.png',
+    'https://www.farmaenlace.com/wp-content/uploads/2022/07/logo-medicity.png',
+  ];
+
   late String nombre = '';
   late String cedula = '';
   late String farmacia = '';
@@ -118,15 +123,61 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
     });
   }
 
+  Widget buildNameAvatar() {
+    final nombre = prefs.getString('nombre')!;
+    final nombres = nombre.split(' ');
+    final primerNombre = nombres.isNotEmpty ? nombres[0] : '';
+    final segundoNombre = nombres.length > 1 ? nombres[1] : '';
+
+    // Toma las primeras letras de ambos nombres
+    final iniciales = primerNombre.isNotEmpty
+        ? primerNombre[0].toUpperCase() +
+            (segundoNombre.isNotEmpty ? segundoNombre[0].toUpperCase() : '')
+        : '';
+
+    return Container(
+      width: 40.0,
+      height: 40.0,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors
+            .blue, // Puedes cambiar el color de fondo según tus preferencias
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        iniciales,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 16.0, // Ajusta el tamaño de fuente según tus preferencias
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading == true) {
       return Container(
         color: Colors.white,
         child: Center(
-          child: LoadingAnimationWidget.inkDrop(
-            color: Colors.indigo,
-            size: 200,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              LoadingAnimationWidget.stretchedDots(
+                color: Colors.indigo,
+                size: 75,
+              ),
+              SizedBox(height: 16), // Espacio entre la animación y el mensaje
+              Text("Cargando",
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'Readex Pro',
+                      color: Colors.indigo,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none)),
+            ],
           ),
         ),
       );
@@ -140,6 +191,63 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
         child: Scaffold(
           key: scaffoldKey,
           backgroundColor: Color(0xFFF1F5F8),
+          drawer: Drawer(
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  height: 150, // Establece la altura que desees
+                  color: Color(0xFF14181B),
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Menú",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(FontAwesomeIcons.clipboardList),
+                  title: Text("Ingreso manual de propiedades"),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ManualDocsPageWidget(),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(FontAwesomeIcons.barcode),
+                  title: Text("Detectar código de barras"),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BarcodeDocsPageWidget(),
+                      ),
+                    );
+                  },
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Text('v2.0.0',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                              fontFamily: 'Readex Pro')),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           body: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.max,
@@ -172,7 +280,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                                 size: 24.0,
                               ),
                               onPressed: () {
-                                print('IconButton pressed ...');
+                                scaffoldKey.currentState!.openDrawer();
                               },
                             ),
                             InkWell(
@@ -180,8 +288,34 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                               focusColor: Colors.transparent,
                               hoverColor: Colors.transparent,
                               highlightColor: Colors.transparent,
-                              onTap: () async {
-                                scaffoldKey.currentState!.openDrawer();
+                              onTap: () {
+                                final RenderBox overlay = Overlay.of(context)
+                                    .context
+                                    .findRenderObject() as RenderBox;
+                                final offset = Offset(40.0, 90.0);
+                                final menuPosition =
+                                    overlay.localToGlobal(offset);
+
+                                showMenu(
+                                  context: context,
+                                  position: RelativeRect.fromLTRB(
+                                      menuPosition.dx, menuPosition.dy, 0, 0),
+                                  items: [
+                                    PopupMenuItem(
+                                      child: ListTile(
+                                        title: Text("Cerrar Sesión"),
+                                        onTap: () {
+                                          prefs.clear();
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      LoginPageWidget()));
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
                               },
                               child: Container(
                                 width: 40.0,
@@ -189,13 +323,13 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                                 clipBehavior: Clip.antiAlias,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
+                                  color: Colors
+                                      .blue, // Puedes cambiar el color de fondo según tus preferencias
                                 ),
-                                child: Image.network(
-                                  'https://images.unsplash.com/photo-1611590027211-b954fd027b51?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1338&q=80',
-                                  fit: BoxFit.cover,
-                                ),
+                                alignment: Alignment.center,
+                                child: buildNameAvatar(),
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ),
@@ -575,6 +709,48 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                     ],
                   ),
                 ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 0.0, 0.0),
+                  child: Text(
+                    'Noticias importantes',
+                    style: FlutterFlowTheme.of(context).headlineSmall.override(
+                          fontFamily: 'Outfit',
+                          color: Color(0xFF0F1113),
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 0.0, 0.0),
+                  child: Container(
+                    height: 100, // Establece la altura del contenedor
+                    child: ListView.builder(
+                      scrollDirection: Axis
+                          .horizontal, // Permite el desplazamiento horizontal
+                      itemCount: imageURLs
+                          .length, // Reemplaza esto con la cantidad de imágenes que tengas
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(
+                                25.0), // Ajusta el radio según tu preferencia
+                          ),
+                          padding: EdgeInsets.all(5),
+                          width: 200,
+                          margin: EdgeInsets.only(right: 15),
+                          child: Image.network(
+                            imageURLs[index],
+                            width: 160,
+                            height: 80,
+                            fit: BoxFit.contain,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                )
               ],
             ),
           ),

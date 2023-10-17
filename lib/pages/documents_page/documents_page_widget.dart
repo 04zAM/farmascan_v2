@@ -1,3 +1,5 @@
+import 'package:app_farma_scan_v2/flutter_flow/flutter_flow_widgets.dart';
+import 'package:app_farma_scan_v2/index.dart';
 import 'package:app_farma_scan_v2/models/documentFieldsData_model.dart';
 import 'package:app_farma_scan_v2/pages/gallery_page/gallery_page_widget.dart';
 import 'package:app_farma_scan_v2/services/api_service.dart';
@@ -69,7 +71,7 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
           context,
           MaterialPageRoute(
             builder: (context) => GalleryPageWidget(
-              document: document,
+              documents: documentStructureArray,
             ),
           ),
         );
@@ -102,7 +104,7 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
               context,
               MaterialPageRoute(
                 builder: (context) => GalleryPageWidget(
-                  document: documentStructureArray[0],
+                  documents: documentStructureArray,
                 ),
               ),
             ));
@@ -202,7 +204,105 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading == true) {
+    if (documentStructureArray.isEmpty) {
+      return GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(_model.unfocusNode),
+        child: Scaffold(
+          key: scaffoldKey,
+          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+          appBar: AppBar(
+            backgroundColor: Color(0xFF6126E0),
+            automaticallyImplyLeading: true,
+            title: Text(
+              'Documentos a digitalizar',
+              style: FlutterFlowTheme.of(context).headlineMedium.override(
+                    fontFamily: 'Inter',
+                    color: Colors.white,
+                    fontSize: 22.0,
+                  ),
+            ),
+            actions: [],
+            centerTitle: false,
+            elevation: 2.0,
+          ),
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Container(
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: double.infinity,
+                  padding: EdgeInsets.all(15.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      //Imagen tipo gif de error
+                      Center(
+                        child: Image.asset(
+                          'assets/lottie_animations/not_found_page.gif',
+                          width: 300,
+                          height: 180,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Center(
+                        child: Text(
+                          'Atención!',
+                          style:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    fontFamily: 'Readex Pro',
+                                    fontSize: 18.0,
+                                    color: Colors.red,
+                                  ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Center(
+                        child: Text(
+                          'Error al obtener la estructura de los documentos. Por favor verifique la parametrización o procedimiento almacenado en base de datos.',
+                          style:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    fontFamily: 'Readex Pro',
+                                    fontSize: 18.0,
+                                  ),
+                          textAlign: TextAlign.justify,
+                        ),
+                      ),
+                      SizedBox(height: 30),
+                      FFButtonWidget(
+                        text: 'Regresar',
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => DashboardPageWidget()),
+                        ),
+                        options: FFButtonOptions(
+                          width: 200.0,
+                          height: 50.0,
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 0.0, 0.0),
+                          iconPadding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 0.0, 0.0),
+                          color: Colors.red,
+                          textStyle:
+                              FlutterFlowTheme.of(context).titleSmall.override(
+                                    fontFamily: 'Readex Pro',
+                                    color: Colors.white,
+                                  ),
+                          elevation: 3.0,
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } else if (_isLoading == true) {
       return Container(
         color: Colors.white,
         child: Center(
@@ -250,6 +350,24 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
                               fontFamily: 'Readex Pro',
                               fontSize: 18.0,
                             ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        dynamicCards.length,
+                        (index) => Container(
+                          width: 12.0,
+                          height: 12.0,
+                          margin: EdgeInsets.symmetric(horizontal: 4.0),
+                          decoration: BoxDecoration(
+                            color: _currentPage == index
+                                ? Color(0xFF6126E0)
+                                : Color(0xFF9E9E9E),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(height: 10),
