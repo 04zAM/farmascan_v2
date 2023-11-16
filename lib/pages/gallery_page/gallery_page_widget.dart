@@ -291,7 +291,7 @@ class _GalleryPageState extends State<GalleryPageWidget> {
     document.origen = 'M';
   }
 
-  void _uploadImages() async {
+  void _uploadDocuments() async {
     setState(() {
       _isLoading = true;
     });
@@ -389,7 +389,7 @@ class _GalleryPageState extends State<GalleryPageWidget> {
       confirmBtnColor: Color.fromARGB(255, 50, 205, 187),
       onConfirmBtnTap: () {
         Navigator.pop(context);
-        _uploadImages();
+        _uploadDocuments();
       },
     );
   }
