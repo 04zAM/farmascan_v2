@@ -91,12 +91,12 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         _isLoading = false;
       });
 
-      print(error);
-
       QuickAlert.show(
         context: context,
         type: QuickAlertType.info,
         text: error.toString().replaceAll('Exception: ', ''),
+        confirmBtnText: 'Aceptar',
+        confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
       );
     }
   }
@@ -193,35 +193,40 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               },
                               obscureText: false,
                               decoration: InputDecoration(
-                                labelText: 'IP Farmacia',
+                                labelText: 'Servidor Farmacia',
+                                labelStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .override(
+                                      fontFamily: 'Readex Pro',
+                                      color: Colors.blueGrey.shade300,
+                                    ),
                                 hintStyle:
                                     FlutterFlowTheme.of(context).bodyLarge,
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color:
-                                        FlutterFlowTheme.of(context).alternate,
-                                    width: 2.0,
+                                    color: Colors.blueGrey.shade300,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    width: 2.0,
+                                    color: Color.fromARGB(255, 150, 220, 50),
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    width: 2.0,
+                                    color: Colors.red,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 focusedErrorBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    width: 2.0,
+                                    color: Colors.orange,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
@@ -244,34 +249,39 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               obscureText: false,
                               decoration: InputDecoration(
                                 labelText: 'Usuario',
+                                labelStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .override(
+                                      fontFamily: 'Readex Pro',
+                                      color: Colors.blueGrey.shade300,
+                                    ),
                                 hintStyle:
                                     FlutterFlowTheme.of(context).bodyLarge,
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color:
-                                        FlutterFlowTheme.of(context).alternate,
-                                    width: 2.0,
+                                    color: Colors.blueGrey.shade300,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    width: 2.0,
+                                    color: Color.fromARGB(255, 150, 220, 50),
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    width: 2.0,
+                                    color: Colors.red,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 focusedErrorBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    width: 2.0,
+                                    color: Colors.orange,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
@@ -294,51 +304,41 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               obscureText: !_model.passwordVisibility,
                               decoration: InputDecoration(
                                 labelText: 'Contraseña',
+                                labelStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .override(
+                                      fontFamily: 'Readex Pro',
+                                      color: Colors.blueGrey.shade300,
+                                    ),
                                 hintStyle:
                                     FlutterFlowTheme.of(context).bodyLarge,
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color:
-                                        FlutterFlowTheme.of(context).alternate,
-                                    width: 2.0,
+                                    color: Colors.blueGrey.shade300,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    width: 2.0,
+                                    color: Color.fromARGB(255, 150, 220, 50),
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    width: 2.0,
+                                    color: Colors.red,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 focusedErrorBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    width: 2.0,
+                                    color: Colors.orange,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                suffixIcon: InkWell(
-                                  onTap: () => setState(
-                                    () => _model.passwordVisibility =
-                                        !_model.passwordVisibility,
-                                  ),
-                                  focusNode: FocusNode(skipTraversal: true),
-                                  child: Icon(
-                                    _model.passwordVisibility
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryText,
-                                    size: 22.0,
-                                  ),
                                 ),
                               ),
                               style: FlutterFlowTheme.of(context).bodyMedium,
@@ -358,8 +358,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                         0.0, 0.0, 0.0, 16.0),
                                     child: _isLoading
                                         ? LoadingAnimationWidget.stretchedDots(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
+                                            color: Color.fromARGB(
+                                                255, 150, 220, 50),
                                             size: 50,
                                           )
                                         : FFButtonWidget(
@@ -374,9 +374,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                                   .fromSTEB(0.0, 0.0, 0.0, 0.0),
                                               iconPadding: EdgeInsetsDirectional
                                                   .fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
+                                              color: Color.fromARGB(
+                                                  255, 150, 220, 50),
                                               textStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .titleSmall

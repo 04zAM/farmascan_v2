@@ -33,8 +33,8 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => BarcodeDocsPageModel());
-
     _model.textController ??= TextEditingController();
+    _scanBarcode();
   }
 
   @override
@@ -149,7 +149,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                       fontSize: 16.0,
                     )),
             confirmBtnText: 'Aceptar',
-            confirmBtnColor: Colors.indigo,
+            confirmBtnColor: const Color.fromARGB(255, 21, 192, 106),
             onConfirmBtnTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -165,6 +165,8 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
           context: context,
           type: QuickAlertType.info,
           text: response['mensaje'],
+          confirmBtnText: 'Aceptar',
+          confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
         );
       }
     } catch (e) {
@@ -175,6 +177,8 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
         context: context,
         type: QuickAlertType.error,
         text: e.toString().replaceAll('Exception: ', ''),
+        confirmBtnText: 'Aceptar',
+        confirmBtnColor: Color.fromARGB(255, 222, 0, 56),
       );
     }
   }
@@ -225,7 +229,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
             key: scaffoldKey,
             backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
             appBar: AppBar(
-              backgroundColor: Color(0xFF6126E0),
+              backgroundColor: Colors.indigo,
               automaticallyImplyLeading: true,
               title: Text(
                 'Documentos Automáticos',
@@ -290,8 +294,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                                             4.0, 0.0, 4.0, 0.0),
                                         child: Icon(
                                           Icons.search_rounded,
-                                          color: FlutterFlowTheme.of(context)
-                                              .primaryText,
+                                          color: Colors.blueGrey,
                                           size: 24.0,
                                         ),
                                       ),
@@ -378,7 +381,15 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                           ),
                           FFButtonWidget(
                             onPressed: () {
-                              _buscarDocumento(_model.textController.text);
+                              if (_model.textController.text.isNotEmpty &&
+                                  _model.textController.text.length >= 12) {
+                                final docId =
+                                    "002F" + _model.textController.text;
+                                _buscarDocumento(docId);
+                              } else {
+                                final scId = "SC" + _model.textController.text;
+                                _buscarDocumento(scId);
+                              }
                             },
                             text: 'Buscar',
                             options: FFButtonOptions(
@@ -388,7 +399,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                                   0.0, 0.0, 0.0, 0.0),
                               iconPadding: EdgeInsetsDirectional.fromSTEB(
                                   0.0, 0.0, 0.0, 0.0),
-                              color: Color(0xFF4B39EF),
+                              color: Colors.indigo,
                               textStyle: FlutterFlowTheme.of(context)
                                   .titleSmall
                                   .override(
@@ -413,10 +424,11 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.crisis_alert_sharp,
-                              color: Color(0xFF7C8791),
-                              size: 90.0,
+                            Image.asset(
+                              'assets/lottie_animations/info.gif',
+                              width: 300,
+                              height: 180,
+                              fit: BoxFit.cover,
                             ),
                             Padding(
                               padding: EdgeInsetsDirectional.fromSTEB(
@@ -432,9 +444,9 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                                         .headlineSmall
                                         .override(
                                           fontFamily: 'Outfit',
-                                          color: Color(0xFF090F13),
+                                          color: Colors.indigo,
                                           fontSize: 20.0,
-                                          fontWeight: FontWeight.w500,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                   ),
                                 ],
@@ -447,7 +459,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       0.0, 15.0, 0.0, 0.0),
                                   child: Text(
-                                    '- Para convenios  y cupones por favor ingrese las iniciales 002F y luego el número de documento sin guiones.',
+                                    '- Para digitalizar convenios  y cupones por favor ingrese las iniciales 002F y luego el número de documento sin guiones.',
                                     textAlign: TextAlign.justify,
                                     style:
                                         FlutterFlowTheme.of(context).bodyMedium,
@@ -457,60 +469,30 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       0.0, 15.0, 0.0, 0.0),
                                   child: Text(
-                                    'Ejemplo: OO2F893001000087569 ',
-                                    textAlign: TextAlign.justify,
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          fontFamily: 'Readex Pro',
-                                          color: FlutterFlowTheme.of(context)
-                                              .tertiary,
-                                        ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 15.0, 0.0, 0.0),
-                                  child: Text(
-                                    '- Para salidas de caja por favor ingresar al inicio del código de solicitud las letras SC. ',
+                                    '- Para digitalizar salidas de caja por favor ingresar al inicio del código de solicitud las letras SC. ',
                                     textAlign: TextAlign.justify,
                                     style:
                                         FlutterFlowTheme.of(context).bodyMedium,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 15.0, 0.0, 25.0),
-                                  child: Text(
-                                    'Ejemplo: SC00001',
-                                    textAlign: TextAlign.justify,
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          fontFamily: 'Readex Pro',
-                                          color: FlutterFlowTheme.of(context)
-                                              .tertiary,
-                                        ),
                                   ),
                                 ),
                               ],
                             ),
                             Padding(
                               padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 12.0, 0.0, 0.0),
+                                  0.0, 25.0, 0.0, 0.0),
                               child: FFButtonWidget(
                                 onPressed: () {
                                   _scanBarcode();
                                 },
                                 text: 'Escanear',
                                 options: FFButtonOptions(
-                                  width: 170.0,
+                                  width: 140.0,
                                   height: 50.0,
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       0.0, 0.0, 0.0, 0.0),
                                   iconPadding: EdgeInsetsDirectional.fromSTEB(
                                       0.0, 0.0, 0.0, 0.0),
-                                  color: Color(0xFF4B39EF),
+                                  color: Color.fromARGB(255, 150, 220, 50),
                                   textStyle: FlutterFlowTheme.of(context)
                                       .titleSmall
                                       .override(

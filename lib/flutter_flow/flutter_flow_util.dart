@@ -19,7 +19,6 @@ export 'dart:convert' show jsonEncode, jsonDecode;
 export 'package:intl/intl.dart';
 export 'package:page_transition/page_transition.dart';
 export 'internationalization.dart' show FFLocalizations;
-export 'nav/nav.dart';
 
 T valueOrDefault<T>(T? value, T defaultValue) =>
     (value is String && value.isEmpty) || value == null ? defaultValue : value;
@@ -38,15 +37,6 @@ String dateTimeFormat(String format, DateTime? dateTime, {String? locale}) {
     return timeago.format(dateTime, locale: locale, allowFromNow: true);
   }
   return DateFormat(format, locale).format(dateTime);
-}
-
-Future launchURL(String url) async {
-  var uri = Uri.parse(url).toString();
-  try {
-    await launchURL(uri);
-  } catch (e) {
-    throw 'Could not launch $uri: $e';
-  }
 }
 
 Color colorFromCssString(String color, {Color? defaultColor}) {

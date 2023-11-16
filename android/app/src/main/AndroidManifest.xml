@@ -1,14 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mycompany.appfarmascanv2"
+    package="com.farmaenlace.farmascanflutter"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
 
 
     <application
-        android:label="App FarmaScan v2"
+        android:label="App FarmaScan"
         tools:replace="android:label"
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true">
+        
 
         <activity
             android:name=".MainActivity"
@@ -45,7 +46,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="appfarmascanv2" android:host="appfarmascanv2.com" />
+                <data android:scheme="farmascanflutter" android:host="farmascanflutter.com" />
             </intent-filter>
 
         </activity>

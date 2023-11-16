@@ -89,9 +89,22 @@ class _ManualDocsPageWidgetState extends State<ManualDocsPageWidget> {
       return Container(
         color: Colors.white,
         child: Center(
-          child: LoadingAnimationWidget.stretchedDots(
-            color: Colors.indigo,
-            size: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              LoadingAnimationWidget.stretchedDots(
+                color: Colors.indigo,
+                size: 75,
+              ),
+              SizedBox(height: 16), // Espacio entre la animación y el mensaje
+              Text("Cargando",
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'Readex Pro',
+                      color: Colors.indigo,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none)),
+            ],
           ),
         ),
       );
@@ -102,14 +115,14 @@ class _ManualDocsPageWidgetState extends State<ManualDocsPageWidget> {
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         appBar: AppBar(
-          backgroundColor: Color(0xFF6126E0),
+          backgroundColor: Colors.indigo,
           automaticallyImplyLeading: true,
           title: Text(
             'Documentos Manuales',
             style: FlutterFlowTheme.of(context).headlineMedium.override(
                   fontFamily: 'Inter',
                   color: Colors.white,
-                  fontSize: 22.0,
+                  fontSize: 18.0,
                 ),
           ),
           actions: [],
@@ -167,7 +180,7 @@ class _ManualDocsPageWidgetState extends State<ManualDocsPageWidget> {
                       width: 454.0,
                       height: 50.0,
                       textStyle: FlutterFlowTheme.of(context).bodyMedium,
-                      hintText: 'Por favor seleccione un departamento...',
+                      hintText: 'Despliegue para seleccionar...',
                       icon: Icon(
                         Icons.keyboard_arrow_down_rounded,
                         color: FlutterFlowTheme.of(context).secondaryText,
@@ -195,20 +208,21 @@ class _ManualDocsPageWidgetState extends State<ManualDocsPageWidget> {
                           child: Visibility(
                             visible: _model.dropDownValue1 == null,
                             child: Text(
-                              'Aún no seleccionas un departamento...',
+                              'Seleccione un departamento antes de continuar',
                               textAlign: TextAlign.start,
                               style: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .override(
                                     fontFamily: 'Readex Pro',
-                                    fontSize: 18.0,
-                                    color: Colors.red,
+                                    fontSize: 12.0,
+                                    color: Colors.orange,
                                   ),
                             ),
                           ),
                         ),
-                        LoadingAnimationWidget.newtonCradle(
-                          color: Colors.indigo,
+                        SizedBox(height: 10),
+                        LoadingAnimationWidget.stretchedDots(
+                          color: Colors.indigoAccent,
                           size: 50,
                         ),
                       ],
@@ -247,7 +261,7 @@ class _ManualDocsPageWidgetState extends State<ManualDocsPageWidget> {
                             width: 432.0,
                             height: 50.0,
                             textStyle: FlutterFlowTheme.of(context).bodyMedium,
-                            hintText: 'Por favor seleccione un documento...',
+                            hintText: 'Despliegue para seleccionar...',
                             icon: Icon(
                               Icons.keyboard_arrow_down_rounded,
                               color: FlutterFlowTheme.of(context).secondaryText,
@@ -292,7 +306,7 @@ class _ManualDocsPageWidgetState extends State<ManualDocsPageWidget> {
                                   24.0, 0.0, 24.0, 0.0),
                               iconPadding: EdgeInsetsDirectional.fromSTEB(
                                   0.0, 0.0, 0.0, 0.0),
-                              color: Color(0xFF6126E0),
+                              color: Colors.indigo,
                               textStyle: FlutterFlowTheme.of(context)
                                   .titleSmall
                                   .override(

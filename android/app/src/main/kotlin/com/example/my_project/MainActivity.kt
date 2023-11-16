@@ -1,4 +1,4 @@
-package com.mycompany.appfarmascanv2
+package com.farmaenlace.farmascanflutter
 
 import io.flutter.embedding.android.FlutterActivity
 

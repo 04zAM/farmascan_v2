@@ -114,32 +114,36 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
             readOnly: true,
             decoration: InputDecoration(
               labelText: capitalizeFirstLetter(field.prdNombre) + ':',
-              labelStyle: FlutterFlowTheme.of(context).bodyLarge,
+              labelStyle: FlutterFlowTheme.of(context).bodyMedium.override(
+                    fontFamily: 'Readex Pro',
+                    color: Colors.blueGrey.shade300,
+                  ),
+              hintStyle: FlutterFlowTheme.of(context).bodyLarge,
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: FlutterFlowTheme.of(context).alternate,
-                  width: 2.0,
+                  color: Colors.blueGrey.shade300,
+                  width: 1,
                 ),
                 borderRadius: BorderRadius.circular(12.0),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: FlutterFlowTheme.of(context).primary,
-                  width: 2.0,
+                  color: Color.fromARGB(255, 150, 220, 50),
+                  width: 1,
                 ),
                 borderRadius: BorderRadius.circular(12.0),
               ),
               errorBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: FlutterFlowTheme.of(context).primary,
-                  width: 2.0,
+                  color: Colors.red,
+                  width: 1,
                 ),
                 borderRadius: BorderRadius.circular(12.0),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: FlutterFlowTheme.of(context).primary,
-                  width: 2.0,
+                  color: Colors.orange,
+                  width: 1,
                 ),
                 borderRadius: BorderRadius.circular(12.0),
               ),
@@ -182,32 +186,36 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
             },
             decoration: InputDecoration(
               labelText: capitalizeFirstLetter(field.prdNombre) + ':',
-              labelStyle: FlutterFlowTheme.of(context).bodyLarge,
+              labelStyle: FlutterFlowTheme.of(context).bodyMedium.override(
+                    fontFamily: 'Readex Pro',
+                    color: Colors.blueGrey.shade300,
+                  ),
+              hintStyle: FlutterFlowTheme.of(context).bodyLarge,
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: FlutterFlowTheme.of(context).alternate,
-                  width: 2.0,
+                  color: Colors.blueGrey.shade300,
+                  width: 1,
                 ),
                 borderRadius: BorderRadius.circular(12.0),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: FlutterFlowTheme.of(context).primary,
-                  width: 2.0,
+                  color: Color.fromARGB(255, 150, 220, 50),
+                  width: 1,
                 ),
                 borderRadius: BorderRadius.circular(12.0),
               ),
               errorBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: FlutterFlowTheme.of(context).primary,
-                  width: 2.0,
+                  color: Colors.red,
+                  width: 1,
                 ),
                 borderRadius: BorderRadius.circular(12.0),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: FlutterFlowTheme.of(context).primary,
-                  width: 2.0,
+                  color: Colors.orange,
+                  width: 1,
                 ),
                 borderRadius: BorderRadius.circular(12.0),
               ),
@@ -246,12 +254,15 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
     setState(() {
       documentList.add(documentFields);
     });
+    Set<String> messagesShown = Set<String>();
+    final List<dynamic> orderDocs = [];
     if (documentFields.farmascanMl.isEmpty) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => GalleryPageWidget(
             documents: documentList,
+            orderDocs: [],
           ),
         ),
       );
@@ -260,8 +271,59 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
           'Estimado usuario recuerde que el orden correcto de los documentos a digitalizar es:\n\n';
 
       for (int i = 0; i < documentFields.farmascanMl.length; i++) {
-        orderMessage +=
-            '${i + 1}. ${capitalizeFirstLetter(documentFields.farmascanMl[i].fmlMensaje)}\n';
+        String message = documentFields.farmascanMl[i].fmlMensaje;
+        final item = {
+          'mensaje': message,
+          'ocr': documentFields.farmascanMl[i].fmlValidarReglasOcr,
+          'predict': documentFields.farmascanMl[i].fmlValidarModeloPrediccion,
+          'codigo': documentFields.farmascanMl[i].fmlDocumentoCodigo,
+        };
+
+        if (!orderDocs
+            .contains(orderDocs.where((e) => e['mensaje'] == message))) {
+          orderDocs.add(item);
+        }
+      }
+
+      orderDocs.sort((a, b) {
+        final preferencias = {
+          'Comprobante de venta': 1,
+          'Factura': 2,
+          'Cupón': 3,
+          'Receta': 4,
+          'Correo': 5
+        };
+
+        final mensajeA = a['mensaje'].toLowerCase();
+        final mensajeB = b['mensaje'].toLowerCase();
+
+        final ordenA = preferencias.keys.firstWhere(
+            (key) => mensajeA.contains(key.toLowerCase()),
+            orElse: () => 'null');
+
+        final ordenB = preferencias.keys.firstWhere(
+            (key) => mensajeB.contains(key.toLowerCase()),
+            orElse: () => 'null');
+
+        if (ordenA != 'null' && ordenB != 'null') {
+          return (preferencias[ordenA] as num)
+              .compareTo(preferencias[ordenB] as num);
+        } else if (ordenA != 'null') {
+          return -1;
+        } else if (ordenB != 'null') {
+          return 1;
+        } else {
+          return a['mensaje'].compareTo(b['mensaje']);
+        }
+      });
+
+      int index = 1;
+      for (int i = 0; i < orderDocs.length; i++) {
+        if (!messagesShown.contains(orderDocs[i]['mensaje'])) {
+          messagesShown.add(orderDocs[i]['mensaje']);
+          orderMessage +=
+              '${index++}. ${capitalizeFirstLetter(orderDocs[i]['mensaje'])}\n';
+        }
       }
 
       QuickAlert.show(
@@ -273,14 +335,15 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
                     fontSize: 16.0,
                   )),
           showCancelBtn: true,
-          confirmBtnText: 'Siguiente',
+          confirmBtnText: 'Continuar',
           cancelBtnText: 'Atras',
-          confirmBtnColor: Color(0xFF6126E0),
+          confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
           onConfirmBtnTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => GalleryPageWidget(
                     documents: documentList,
+                    orderDocs: orderDocs,
                   ),
                 ),
               ));
@@ -293,9 +356,22 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
       return Container(
         color: Colors.white,
         child: Center(
-          child: LoadingAnimationWidget.stretchedDots(
-            color: Colors.indigo,
-            size: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              LoadingAnimationWidget.stretchedDots(
+                color: Colors.indigo,
+                size: 75,
+              ),
+              SizedBox(height: 16), // Espacio entre la animación y el mensaje
+              Text("Cargando",
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'Readex Pro',
+                      color: Colors.indigo,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none)),
+            ],
           ),
         ),
       );
@@ -306,14 +382,14 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         appBar: AppBar(
-          backgroundColor: Color(0xFF6126E0),
+          backgroundColor: Colors.indigo,
           automaticallyImplyLeading: true,
           title: Text(
             'Ingreso de Datos',
             style: FlutterFlowTheme.of(context).headlineMedium.override(
                   fontFamily: 'Inter',
                   color: Colors.white,
-                  fontSize: 22.0,
+                  fontSize: 18.0,
                 ),
           ),
           actions: [],
@@ -356,7 +432,7 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
                                   24.0, 0.0, 24.0, 0.0),
                               iconPadding: EdgeInsetsDirectional.fromSTEB(
                                   0.0, 0.0, 0.0, 0.0),
-                              color: Color(0xFF6126E0),
+                              color: Colors.indigo,
                               textStyle: FlutterFlowTheme.of(context)
                                   .titleSmall
                                   .override(

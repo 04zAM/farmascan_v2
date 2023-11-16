@@ -12,6 +12,7 @@ class ApiService {
   final timeoutDuration = Duration(seconds: 60);
   String ipDigitalizacion = '192.168.240.6/ITEDigitalizacionAPI3';
   String servicePlataformaMovil = 'ws_plataformamovil/Service1.svc';
+  String ipOCR = '192.168.240.6:8081';
 
   Future<String> getLocalIp() async {
     final prefs = await SharedPreferences.getInstance();
@@ -123,7 +124,13 @@ class ApiService {
         final departmentsDataList = decodedBody
             .map((jsonObject) => DepartmentData.fromJson(jsonObject))
             .toList();
-        return departmentsDataList;
+        List<DepartmentData> filteredList = departmentsDataList
+            .where((data) =>
+                !data.ambAmbiente.contains("CONVENIOS") &&
+                !data.ambAmbiente.contains("CUPONES"))
+            .toList();
+
+        return filteredList;
       } else {
         throw Exception('Error de conexión con el servidor');
       }
@@ -266,6 +273,9 @@ class ApiService {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       };
+      //Testear el api
+      //print(jsonEncode(documento.toJson()));
+      //final jsonTemp = jsonEncode(documento.toJson());
       final response = await http
           .post(
             Uri.parse('http://$ipDigitalizacion/api/Documento'),
@@ -287,6 +297,34 @@ class ApiService {
           'Tiempo de espera agotado. No se pudo conectar al servidor en $timeoutSeconds segundos.');
     } catch (e) {
       throw Exception('Error: $e');
+    }
+  }
+
+  Future<String> postOCR(String base64Image, int codigoDocumento) async {
+    try {
+      final apiUrl = "http://192.168.240.6:8081/predecir";
+      final headers = {"Content-Type": "application/json"};
+
+      final data = {
+        "CodigoDocumento": codigoDocumento,
+        "Base64": base64Image,
+      };
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: headers,
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        final responseBody = jsonDecode(response.body);
+        final mensaje = responseBody["mensaje"];
+        return mensaje;
+      } else {
+        throw Exception("Error de conexión con el servidor");
+      }
+    } catch (e) {
+      throw Exception("Error: $e");
     }
   }
 }

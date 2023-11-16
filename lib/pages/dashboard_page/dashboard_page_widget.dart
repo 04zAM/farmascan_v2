@@ -1,6 +1,9 @@
 import 'package:app_farma_scan_v2/index.dart';
+import 'package:app_farma_scan_v2/pages/logout_page/logout_page_widget.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:url_launcher/url_launcher.dart';
 
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
@@ -30,6 +33,11 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
   List<String> imageURLs = [
     'https://www.farmaenlace.com/wp-content/uploads/2022/07/logo-economicas.png',
     'https://www.farmaenlace.com/wp-content/uploads/2022/07/logo-medicity.png',
+  ];
+
+  List<Uri> infoURLs = [
+    Uri.parse('https://www.farmaciaseconomicas.com.ec/'),
+    Uri.parse('https://www.farmaenlace.com/marca/farmacias-medicity/'),
   ];
 
   late String nombre = '';
@@ -108,19 +116,24 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
 
   void _getUserData() async {
     prefs = await SharedPreferences.getInstance();
-    //Esperar 5 segundos
-    await Future.delayed(Duration(seconds: 2));
-    setState(() {
-      nombre = prefs.getString('nombre')!;
-      cedula = prefs.getString('cedula')!;
-      farmacia = prefs.getString('farmacia')!;
-      idbodega = prefs.getString('idbodega')!;
-      sucursal = prefs.getString('sucursal')!;
-      compania = prefs.getString('compania')!;
-      centroCosto = prefs.getString('centroCosto')!;
-      nombreCorto = prefs.getString('nombreCorto')!;
-      _isLoading = false;
-    });
+    try {
+      setState(() {
+        nombre = prefs.getString('nombre')!;
+        cedula = prefs.getString('cedula')!;
+        farmacia = prefs.getString('farmacia')!;
+        idbodega = prefs.getString('idbodega')!;
+        sucursal = prefs.getString('sucursal')!;
+        compania = prefs.getString('compania')!;
+        centroCosto = prefs.getString('centroCosto')!;
+        nombreCorto = prefs.getString('nombreCorto')!;
+        _isLoading = false;
+      });
+    } catch (e) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPageWidget()),
+      );
+    }
   }
 
   Widget buildNameAvatar() {
@@ -142,7 +155,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: Colors
-            .blue, // Puedes cambiar el color de fondo según tus preferencias
+            .indigo, // Puedes cambiar el color de fondo según tus preferencias
       ),
       alignment: Alignment.center,
       child: Text(
@@ -196,8 +209,8 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
               children: [
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  height: 150, // Establece la altura que desees
-                  color: Color(0xFF14181B),
+                  height: 75, // Establece la altura que desees
+                  color: Color.fromARGB(255, 150, 220, 50),
                   alignment: Alignment.center,
                   child: Text(
                     "Menú",
@@ -304,13 +317,25 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                                     PopupMenuItem(
                                       child: ListTile(
                                         title: Text("Cerrar Sesión"),
-                                        onTap: () {
-                                          prefs.clear();
+                                        onTap: () async {
+                                          // Mostrar la página de cierre de sesión
                                           Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      LoginPageWidget()));
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LogoutPageWidget()),
+                                          );
+
+                                          // Realizar tareas de cierre de sesión, como limpiar preferencias, etc.
+                                          await prefs.clear();
+
+                                          // Una vez completado el cierre de sesión, redirigir a la pantalla de inicio de sesión
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LoginPageWidget()),
+                                          );
                                         },
                                       ),
                                     ),
@@ -373,7 +398,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                         padding: EdgeInsetsDirectional.fromSTEB(
                             24.0, 0.0, 24.0, 0.0),
                         child: Text(
-                          cedula,
+                          nombreCorto,
                           style:
                               FlutterFlowTheme.of(context).labelMedium.override(
                                     fontFamily: 'Plus Jakarta Sans',
@@ -411,7 +436,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       0.0, 0.0, 0.0, 4.0),
                                   child: Text(
-                                    nombreCorto,
+                                    'CI: $cedula',
                                     style: FlutterFlowTheme.of(context)
                                         .labelSmall
                                         .override(
@@ -445,7 +470,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                                         padding: EdgeInsetsDirectional.fromSTEB(
                                             0.0, 4.0, 0.0, 0.0),
                                         child: Text(
-                                          centroCosto,
+                                          'C. Costo: $centroCosto',
                                           style: FlutterFlowTheme.of(context)
                                               .labelMedium
                                               .override(
@@ -538,8 +563,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                                   width: double.infinity,
                                   height: 155.0,
                                   decoration: BoxDecoration(
-                                    color:
-                                        FlutterFlowTheme.of(context).secondary,
+                                    color: Colors.indigo,
                                     borderRadius: BorderRadius.only(
                                       bottomLeft: Radius.circular(0.0),
                                       bottomRight: Radius.circular(0.0),
@@ -568,9 +592,8 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                                           alignment:
                                               AlignmentDirectional(0.0, 0.0),
                                           child: Icon(
-                                            Icons.edit_note_sharp,
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondary,
+                                            FontAwesomeIcons.clipboardList,
+                                            color: Colors.black,
                                             size: 20.0,
                                           ),
                                         ),
@@ -638,8 +661,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                                   width: double.infinity,
                                   height: 155.0,
                                   decoration: BoxDecoration(
-                                    color:
-                                        FlutterFlowTheme.of(context).tertiary,
+                                    color: Color.fromARGB(255, 150, 220, 50),
                                     borderRadius: BorderRadius.only(
                                       bottomLeft: Radius.circular(0.0),
                                       bottomRight: Radius.circular(0.0),
@@ -669,8 +691,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                                               AlignmentDirectional(0.0, 0.0),
                                           child: FaIcon(
                                             FontAwesomeIcons.barcode,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
+                                            color: Colors.black,
                                             size: 20.0,
                                           ),
                                         ),
@@ -731,20 +752,25 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                       itemCount: imageURLs
                           .length, // Reemplaza esto con la cantidad de imágenes que tengas
                       itemBuilder: (BuildContext context, int index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(
-                                25.0), // Ajusta el radio según tu preferencia
-                          ),
-                          padding: EdgeInsets.all(5),
-                          width: 200,
-                          margin: EdgeInsets.only(right: 15),
-                          child: Image.network(
-                            imageURLs[index],
-                            width: 160,
-                            height: 80,
-                            fit: BoxFit.contain,
+                        return GestureDetector(
+                          onTap: () async {
+                            Uri link = infoURLs[index];
+                            await launchUrl(link);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(25.0),
+                            ),
+                            padding: EdgeInsets.all(5),
+                            width: 200,
+                            margin: EdgeInsets.only(right: 15),
+                            child: Image.network(
+                              imageURLs[index],
+                              width: 160,
+                              height: 80,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         );
                       },

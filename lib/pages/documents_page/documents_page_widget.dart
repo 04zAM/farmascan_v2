@@ -64,6 +64,7 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
     String orderMessage =
         'Estimado usuario recuerde que el orden correcto de los documentos a digitalizar es:\n\n';
     Set<String> messagesShown = Set<String>();
+    final List<dynamic> orderDocs = [];
 
     for (DocumentFieldsData document in documentStructureArray) {
       if (document.farmascanMl.isEmpty) {
@@ -72,24 +73,72 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
           MaterialPageRoute(
             builder: (context) => GalleryPageWidget(
               documents: documentStructureArray,
+              orderDocs: [],
             ),
           ),
         );
       } else {
         for (int i = 0; i < document.farmascanMl.length; i++) {
           String message = document.farmascanMl[i].fmlMensaje;
-          if (!messagesShown.contains(message)) {
-            orderMessage +=
-                '${messagesShown.length + 1}. ${capitalizeFirstLetter(message)}\n';
-            messagesShown.add(message);
+          final item = {
+            'mensaje': message,
+            'ocr': document.farmascanMl[i].fmlValidarReglasOcr,
+            'predict': document.farmascanMl[i].fmlValidarModeloPrediccion,
+            'codigo': document.farmascanMl[i].fmlDocumentoCodigo,
+          };
+
+          if (!orderDocs
+              .contains(orderDocs.where((e) => e['mensaje'] == message))) {
+            orderDocs.add(item);
           }
         }
       }
     }
 
+    orderDocs.sort((a, b) {
+      final preferencias = {
+        'Comprobante de venta': 1,
+        'Factura': 2,
+        'Cupón': 3,
+        'Receta': 4,
+        'Correo': 5
+      };
+
+      final mensajeA = a['mensaje'].toLowerCase();
+      final mensajeB = b['mensaje'].toLowerCase();
+
+      final ordenA = preferencias.keys.firstWhere(
+          (key) => mensajeA.contains(key.toLowerCase()),
+          orElse: () => 'null');
+
+      final ordenB = preferencias.keys.firstWhere(
+          (key) => mensajeB.contains(key.toLowerCase()),
+          orElse: () => 'null');
+
+      if (ordenA != 'null' && ordenB != 'null') {
+        return (preferencias[ordenA] as num)
+            .compareTo(preferencias[ordenB] as num);
+      } else if (ordenA != 'null') {
+        return -1;
+      } else if (ordenB != 'null') {
+        return 1;
+      } else {
+        return a['mensaje'].compareTo(b['mensaje']);
+      }
+    });
+
+    int index = 1;
+    for (int i = 0; i < orderDocs.length; i++) {
+      if (!messagesShown.contains(orderDocs[i]['mensaje'])) {
+        messagesShown.add(orderDocs[i]['mensaje']);
+        orderMessage +=
+            '${index++}. ${capitalizeFirstLetter(orderDocs[i]['mensaje'])}\n';
+      }
+    }
+
     QuickAlert.show(
         context: context,
-        type: QuickAlertType.confirm,
+        type: QuickAlertType.info,
         title: 'Atención!',
         widget: Text(orderMessage,
             style: FlutterFlowTheme.of(context).bodyMedium.override(
@@ -97,14 +146,15 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
                   fontSize: 16.0,
                 )),
         showCancelBtn: true,
-        confirmBtnText: 'Siguiente',
+        confirmBtnText: 'Continuar',
         cancelBtnText: 'Atras',
-        confirmBtnColor: Color(0xFF6126E0),
+        confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
         onConfirmBtnTap: () => Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => GalleryPageWidget(
                   documents: documentStructureArray,
+                  orderDocs: orderDocs,
                 ),
               ),
             ));
@@ -142,7 +192,7 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
                           fontWeight: FontWeight.bold)),
                   SizedBox(height: 5),
                   Text(capitalizeFirstLetter(propiedad.datos),
-                      style: TextStyle(fontSize: 14)),
+                      style: TextStyle(fontSize: 14, color: Colors.black)),
                 ],
               ),
             ),
@@ -211,14 +261,14 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
           key: scaffoldKey,
           backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
           appBar: AppBar(
-            backgroundColor: Color(0xFF6126E0),
+            backgroundColor: Colors.indigo,
             automaticallyImplyLeading: true,
             title: Text(
               'Documentos a digitalizar',
               style: FlutterFlowTheme.of(context).headlineMedium.override(
                     fontFamily: 'Inter',
                     color: Colors.white,
-                    fontSize: 22.0,
+                    fontSize: 18.0,
                   ),
             ),
             actions: [],
@@ -319,14 +369,14 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         appBar: AppBar(
-          backgroundColor: Color(0xFF6126E0),
+          backgroundColor: Colors.indigo,
           automaticallyImplyLeading: true,
           title: Text(
             'Documentos a digitalizar',
             style: FlutterFlowTheme.of(context).headlineMedium.override(
                   fontFamily: 'Inter',
                   color: Colors.white,
-                  fontSize: 22.0,
+                  fontSize: 18.0,
                 ),
           ),
           actions: [],
