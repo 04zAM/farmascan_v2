@@ -413,7 +413,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                             20.0, 12.0, 20.0, 12.0),
                         child: Container(
                           width: double.infinity,
-                          height: 110.0,
+                          height: 180.0,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             boxShadow: [
@@ -521,7 +521,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                 ),
                 Container(
                   width: double.infinity,
-                  height: 198.0,
+                  height: 220.0,
                   decoration: BoxDecoration(
                     color: Color(0xFFF1F5F8),
                   ),
@@ -544,7 +544,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                               16.0, 12.0, 12.0, 12.0),
                           child: Container(
                             width: 230.0,
-                            height: 50.0,
+                            height: 60.0,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               boxShadow: [
@@ -561,7 +561,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                               children: [
                                 Container(
                                   width: double.infinity,
-                                  height: 155.0,
+                                  height: 170.0,
                                   decoration: BoxDecoration(
                                     color: Colors.indigo,
                                     borderRadius: BorderRadius.only(
@@ -642,7 +642,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                               0.0, 12.0, 16.0, 12.0),
                           child: Container(
                             width: 230.0,
-                            height: 50.0,
+                            height: 60.0,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               boxShadow: [
@@ -659,7 +659,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                               children: [
                                 Container(
                                   width: double.infinity,
-                                  height: 155.0,
+                                  height: 170.0,
                                   decoration: BoxDecoration(
                                     color: Color.fromARGB(255, 150, 220, 50),
                                     borderRadius: BorderRadius.only(

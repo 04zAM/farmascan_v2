@@ -340,6 +340,19 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                   ),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
+                                suffixIcon: InkWell(
+                                  onTap: () => setState(
+                                    () => _model.passwordVisibility =
+                                        !_model.passwordVisibility,
+                                  ),
+                                  child: Icon(
+                                    _model.passwordVisibility
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    color: Color.fromARGB(255, 150, 220, 50),
+                                    size: 22,
+                                  ),
+                                ),
                               ),
                               style: FlutterFlowTheme.of(context).bodyMedium,
                               validator: _model.textController3Validator

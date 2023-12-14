@@ -40,12 +40,17 @@ class ApiService {
       String ipPharma, String username, String password) async {
     username = username + "_10"; //Control de version _9
     String ipPhone = await getLocalIp();
+
     try {
-      final response = await http
-          .get(Uri.parse(
-            'http://$ipPharma/$servicePlataformaMovil/AutentificarUsuarioFarmaScan?usuario=$username&contrasenia=$password&ipMovil=$ipPhone&ipMovil2=$ipPhone',
-          ))
-          .timeout(timeoutDuration);
+      final encodedUsername = Uri.encodeComponent(username);
+      final encodedPassword = Uri.encodeComponent(password);
+      final encodedIpPhone = Uri.encodeComponent(ipPhone);
+
+      final url = Uri.parse(
+        'http://$ipPharma/$servicePlataformaMovil/AutentificarUsuarioFarmaScan?usuario=$encodedUsername&contrasenia=$encodedPassword&ipMovil=$encodedIpPhone&ipMovil2=$encodedIpPhone',
+      );
+
+      final response = await http.get(url).timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
         final utf8DecodedBody = utf8.decode(response.bodyBytes);
@@ -63,8 +68,11 @@ class ApiService {
       final timeoutSeconds = timeoutDuration.inSeconds;
       throw Exception(
           'Tiempo de espera agotado. No se pudo conectar al servidor en $timeoutSeconds segundos.');
-    } catch (e) {
-      throw Exception('Error: $e');
+    } catch (e, stackTrace) {
+      print('Error: $e');
+      print('StackTrace: $stackTrace');
+      throw Exception(
+          'Error inesperado en la línea ${stackTrace.toString().split('\n')[1]}');
     }
   }
 

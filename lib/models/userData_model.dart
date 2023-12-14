@@ -74,8 +74,8 @@ class Mensaje {
 }
 
 class Atribucione {
-  Aplicacion aplicacion;
-  Modulo modulo;
+  String aplicacion;
+  String modulo;
   String transaccion;
 
   Atribucione({
@@ -85,52 +85,14 @@ class Atribucione {
   });
 
   factory Atribucione.fromJson(Map<String, dynamic> json) => Atribucione(
-        aplicacion: aplicacionValues.map[json["Aplicacion"]]!,
-        modulo: moduloValues.map[json["Modulo"]]!,
+        aplicacion: json["Aplicacion"],
+        modulo: json["Modulo"],
         transaccion: json["Transaccion"],
       );
 
   Map<String, dynamic> toJson() => {
-        "Aplicacion": aplicacionValues.reverse[aplicacion],
-        "Modulo": moduloValues.reverse[modulo],
+        "Aplicacion": aplicacion,
+        "Modulo": modulo,
         "Transaccion": transaccion,
       };
-}
-
-enum Aplicacion { PV }
-
-final aplicacionValues = EnumValues({"PV": Aplicacion.PV});
-
-enum Modulo {
-  MOD_DIGITALIZACION,
-  MOD_PLANIFICACION,
-  MOD_RECEPCION,
-  M_BI_FARMACIAS,
-  M_CAJA,
-  M_FACTURACION,
-  M_INVENTARIO,
-  M_REPORTES
-}
-
-final moduloValues = EnumValues({
-  "mod_digitalizacion": Modulo.MOD_DIGITALIZACION,
-  "mod_planificacion": Modulo.MOD_PLANIFICACION,
-  "mod_recepcion": Modulo.MOD_RECEPCION,
-  "m_BiFarmacias": Modulo.M_BI_FARMACIAS,
-  "m_caja": Modulo.M_CAJA,
-  "m_facturacion": Modulo.M_FACTURACION,
-  "m_inventario": Modulo.M_INVENTARIO,
-  "m_reportes": Modulo.M_REPORTES
-});
-
-class EnumValues<T> {
-  Map<String, T> map;
-  late Map<T, String> reverseMap;
-
-  EnumValues(this.map);
-
-  Map<T, String> get reverse {
-    reverseMap = map.map((k, v) => MapEntry(v, k));
-    return reverseMap;
-  }
 }

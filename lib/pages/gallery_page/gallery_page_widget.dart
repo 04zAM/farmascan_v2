@@ -59,56 +59,59 @@ class _GalleryPageState extends State<GalleryPageWidget> {
     });
     final pickedFiles = await ImagePicker().pickMultiImage();
     int index = _images.length + pickedFiles.length - 1;
-    print("cantidad de imágenes: " + index.toString());
     for (var pickedFile in pickedFiles) {
       final file = File(pickedFile.path);
       var originalImage = img.decodeImage(await file.readAsBytes());
-      final originalEncoded = img.encodeJpg(originalImage!);
-      final originalImageBase64 = base64Encode(originalEncoded);
-      var decodedImage = img.decodeImage(await file.readAsBytes());
-      if (decodedImage != null) {
-        //girar a las imagenes horizontales y remplazarla en file
-        if (decodedImage.width > decodedImage.height) {
-          decodedImage = img.copyRotate(decodedImage, angle: 90);
-          file.writeAsBytesSync(img.encodeJpg(decodedImage));
-        }
+      if (originalImage != null) {
+        final originalEncoded = img.encodeJpg(originalImage);
+        final originalImageBase64 = base64Encode(originalEncoded);
+        var decodedImage = img.decodeImage(await file.readAsBytes());
+        if (decodedImage != null) {
+          if (decodedImage.width > decodedImage.height) {
+            decodedImage = img.copyRotate(decodedImage, angle: 90);
+            file.writeAsBytesSync(img.encodeJpg(decodedImage));
+          }
 
-        if (orderDocs.isNotEmpty && orderDocs[index]['ocr'] == 'S') {
-          String checkOcr = await apiService.postOCR(
-            originalImageBase64,
-            orderDocs[index]['codigo'],
-          );
-          if (checkOcr.contains("Vuelva a escanear")) {
-            setState(() {
-              _isLoading = false;
-            });
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.error,
-              title: 'Error',
-              widget: SingleChildScrollView(
-                child: Text(
-                  'El documento escaneado no corresponde al orden solicitado, por favor verifique.',
-                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                        fontFamily: 'Readex Pro',
-                        fontSize: 16.0,
-                      ),
-                ),
-              ),
-              confirmBtnText: 'Aceptar',
-              confirmBtnColor: Color.fromARGB(255, 222, 0, 56),
-              onConfirmBtnTap: () => Navigator.pop(context),
+          if (orderDocs.isNotEmpty &&
+              index < orderDocs.length &&
+              orderDocs[index] != null &&
+              orderDocs[index]['ocr'] == 'S') {
+            String checkOcr = await apiService.postOCR(
+              originalImageBase64,
+              orderDocs[index]['codigo'],
             );
+            if (checkOcr.contains("Vuelva a escanear")) {
+              setState(() {
+                _isLoading = false;
+              });
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.error,
+                title: 'Error',
+                widget: SingleChildScrollView(
+                  child: Text(
+                    'El documento escaneado no corresponde al orden solicitado, por favor verifique.',
+                    style: FlutterFlowTheme.of(context).bodyMedium.override(
+                          fontFamily: 'Readex Pro',
+                          fontSize: 16.0,
+                        ),
+                  ),
+                ),
+                confirmBtnText: 'Aceptar',
+                confirmBtnColor: Color.fromARGB(255, 222, 0, 56),
+                onConfirmBtnTap: () => Navigator.pop(context),
+              );
+            } else {
+              index++;
+              setState(() {
+                _tempImages.add(file);
+              });
+            }
           } else {
-            index++;
             setState(() {
               _tempImages.add(file);
             });
           }
-        } else {
-          setState(() {
-            _tempImages.add(file);
-          });
         }
       } else {
         QuickAlert.show(
@@ -116,7 +119,7 @@ class _GalleryPageState extends State<GalleryPageWidget> {
             type: QuickAlertType.error,
             title: 'Error',
             widget: Text(
-                'No se pudo cargar la imagen, por favor intente de nuevo. Formatos permitidos JPG, PNG.',
+                'No se pudo cargar la imagen ${pickedFile.name}, por favor intente de nuevo. Formatos permitidos JPG, PNG.',
                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                       fontFamily: 'Readex Pro',
                       fontSize: 16.0,

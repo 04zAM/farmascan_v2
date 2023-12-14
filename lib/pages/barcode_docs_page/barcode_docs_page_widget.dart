@@ -293,7 +293,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                                         padding: EdgeInsetsDirectional.fromSTEB(
                                             4.0, 0.0, 4.0, 0.0),
                                         child: Icon(
-                                          Icons.search_rounded,
+                                          Icons.document_scanner_outlined,
                                           color: Colors.blueGrey,
                                           size: 24.0,
                                         ),
@@ -383,18 +383,38 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                             onPressed: () {
                               if (_model.textController.text.isNotEmpty &&
                                   _model.textController.text.length >= 12) {
-                                final docId =
-                                    "002F" + _model.textController.text;
-                                _buscarDocumento(docId);
+                                if (_model.textController.text
+                                    .contains('002F')) {
+                                  final docId = _model.textController.text;
+                                  _buscarDocumento(docId);
+                                } else {
+                                  final docId =
+                                      "002F" + _model.textController.text;
+                                  _buscarDocumento(docId);
+                                }
                               } else {
-                                final scId = "SC" + _model.textController.text;
-                                _buscarDocumento(scId);
+                                if (_model.textController.text.contains('SC')) {
+                                  final scId = _model.textController.text;
+                                  _buscarDocumento(scId);
+                                } else {
+                                  final scId =
+                                      "SC" + _model.textController.text;
+                                  _buscarDocumento(scId);
+                                }
                               }
                             },
-                            text: 'Buscar',
+                            text: '',
+                            icon: Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                              child: Icon(
+                                Icons.search,
+                                color: Colors.white,
+                                size: 32.0,
+                              ),
+                            ),
                             options: FFButtonOptions(
-                              width: 80.0,
-                              height: 36.0,
+                              width: 50.0,
+                              height: 50.0,
                               padding: EdgeInsetsDirectional.fromSTEB(
                                   0.0, 0.0, 0.0, 0.0),
                               iconPadding: EdgeInsetsDirectional.fromSTEB(
