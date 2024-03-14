@@ -1,5 +1,6 @@
 import 'package:app_farma_scan_v2/index.dart';
 import 'package:app_farma_scan_v2/pages/logout_page/logout_page_widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -195,10 +196,8 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
         ),
       );
     }
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
+    return PopScope(
+      canPop: false,
       child: GestureDetector(
         onTap: () => FocusScope.of(context).requestFocus(_model.unfocusNode),
         child: Scaffold(
@@ -209,7 +208,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
               children: [
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  height: 75, // Establece la altura que desees
+                  height: 125, // Establece la altura que desees
                   color: Color.fromARGB(255, 150, 220, 50),
                   alignment: Alignment.center,
                   child: Text(
@@ -221,9 +220,12 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                     ),
                   ),
                 ),
+                SizedBox(
+                  height: 16,
+                ),
                 ListTile(
                   leading: Icon(FontAwesomeIcons.clipboardList),
-                  title: Text("Ingreso manual de propiedades"),
+                  title: Text("Digitalización manual"),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -235,7 +237,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                 ),
                 ListTile(
                   leading: Icon(FontAwesomeIcons.barcode),
-                  title: Text("Detectar código de barras"),
+                  title: Text("Digitalización automática"),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -245,17 +247,68 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                     );
                   },
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Text('v2.0.0',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14,
-                              fontFamily: 'Readex Pro')),
-                    ),
+                Spacer(
+                  flex: 1,
+                ),
+                Container(
+                  height: 200,
+                  margin: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Color.fromARGB(114, 192, 214, 231),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      const Text(
+                        "Problemas con la App?",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              "Genera un ticket de soporte, te ayudaremos a resolver tus problemas.",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 116, 178, 226),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Readex Pro',
+                              ),
+                              maxLines: 5,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              String link =
+                                  'https://contactcenter.service-xone.com/signin';
+                              Uri uriLink = Uri.parse(link);
+                              await launchUrl(uriLink);
+                            },
+                            icon: const Icon(
+                              CupertinoIcons.tickets,
+                              color: Color.fromARGB(255, 14, 81, 238),
+                              size: 64,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Text('v2.0.1',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 14,
+                            fontFamily: 'Readex Pro')),
                   ),
                 ),
               ],
@@ -521,7 +574,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                 ),
                 Container(
                   width: double.infinity,
-                  height: 220.0,
+                  height: 160.0, //Contenedor completo
                   decoration: BoxDecoration(
                     color: Color(0xFFF1F5F8),
                   ),
@@ -536,7 +589,7 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => ManualDocsPageWidget()),
+                                builder: (context) => BarcodeDocsPageWidget()),
                           );
                         },
                         child: Padding(
@@ -544,9 +597,9 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                               16.0, 12.0, 12.0, 12.0),
                           child: Container(
                             width: 230.0,
-                            height: 60.0,
+                            height: 35.0,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Color.fromARGB(255, 150, 220, 50),
                               boxShadow: [
                                 BoxShadow(
                                   blurRadius: 4.0,
@@ -561,9 +614,9 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                               children: [
                                 Container(
                                   width: double.infinity,
-                                  height: 170.0,
+                                  height: 115.0,
                                   decoration: BoxDecoration(
-                                    color: Colors.indigo,
+                                    color: Colors.white,
                                     borderRadius: BorderRadius.only(
                                       bottomLeft: Radius.circular(0.0),
                                       bottomRight: Radius.circular(0.0),
@@ -581,141 +634,9 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          width: 36.0,
-                                          height: 36.0,
-                                          decoration: BoxDecoration(
-                                            color: Color(0x98FFFFFF),
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                          ),
-                                          alignment:
-                                              AlignmentDirectional(0.0, 0.0),
-                                          child: Icon(
-                                            FontAwesomeIcons.clipboardList,
-                                            color: Colors.black,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Registro manual de propiedades',
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleMedium
-                                              .override(
-                                                fontFamily: 'Outfit',
-                                                color: Colors.white,
-                                                fontSize: 18.0,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                        ),
-                                        Text(
-                                          'Varios procesos',
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                fontFamily: 'Plus Jakarta Sans',
-                                                color: Colors.white,
-                                                fontSize: 14.0,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ).animateOnPageLoad(
-                              animationsMap['containerOnPageLoadAnimation1']!),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => BarcodeDocsPageWidget()),
-                          );
-                        },
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              0.0, 12.0, 16.0, 12.0),
-                          child: Container(
-                            width: 230.0,
-                            height: 60.0,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  blurRadius: 4.0,
-                                  color: Color(0x34090F13),
-                                  offset: Offset(0.0, 2.0),
-                                )
-                              ],
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  height: 170.0,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 150, 220, 50),
-                                    borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(0.0),
-                                      bottomRight: Radius.circular(0.0),
-                                      topLeft: Radius.circular(12.0),
-                                      topRight: Radius.circular(12.0),
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        12.0, 12.0, 12.0, 12.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          width: 36.0,
-                                          height: 36.0,
-                                          decoration: BoxDecoration(
-                                            color: Color(0x98FFFFFF),
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                          ),
-                                          alignment:
-                                              AlignmentDirectional(0.0, 0.0),
-                                          child: FaIcon(
-                                            FontAwesomeIcons.barcode,
-                                            color: Colors.black,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Escaner de código de barras',
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleMedium
-                                              .override(
-                                                fontFamily: 'Outfit',
-                                                color: Colors.white,
-                                                fontSize: 18.0,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                        ),
-                                        Text(
-                                          'Cupones, Convenios, Salidas de caja',
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                fontFamily: 'Plus Jakarta Sans',
-                                                color: Colors.white,
-                                                fontSize: 14.0,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                        Image.asset(
+                                          'assets/images/barras.png',
+                                          fit: BoxFit.fill,
                                         ),
                                       ],
                                     ),
@@ -726,54 +647,127 @@ class _DashboardPageWidgetState extends State<DashboardPageWidget>
                           ).animateOnPageLoad(
                               animationsMap['containerOnPageLoadAnimation2']!),
                         ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ManualDocsPageWidget()),
+                          );
+                        },
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 12.0, 16.0, 12.0),
+                          child: Container(
+                            width: 230.0,
+                            height: 35.0,
+                            decoration: BoxDecoration(
+                              color: Colors.indigo,
+                              boxShadow: [
+                                BoxShadow(
+                                  blurRadius: 4.0,
+                                  color: Color(0x34090F13),
+                                  offset: Offset(0.0, 2.0),
+                                )
+                              ],
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  height: 115.0,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(0.0),
+                                      bottomRight: Radius.circular(0.0),
+                                      topLeft: Radius.circular(12.0),
+                                      topRight: Radius.circular(12.0),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        12.0, 12.0, 12.0, 12.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/manual.png',
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ).animateOnPageLoad(
+                              animationsMap['containerOnPageLoadAnimation1']!),
+                        ),
                       )
                     ],
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 0.0, 0.0),
-                  child: Text(
-                    'Noticias importantes',
-                    style: FlutterFlowTheme.of(context).headlineSmall.override(
-                          fontFamily: 'Outfit',
-                          color: Color(0xFF0F1113),
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.normal,
-                        ),
+                Visibility(
+                  visible: false,
+                  child: Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 0.0, 0.0),
+                    child: Text(
+                      'Noticias importantes',
+                      style:
+                          FlutterFlowTheme.of(context).headlineSmall.override(
+                                fontFamily: 'Outfit',
+                                color: Color(0xFF0F1113),
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.normal,
+                              ),
+                    ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 0.0, 0.0),
-                  child: Container(
-                    height: 100, // Establece la altura del contenedor
-                    child: ListView.builder(
-                      scrollDirection: Axis
-                          .horizontal, // Permite el desplazamiento horizontal
-                      itemCount: imageURLs
-                          .length, // Reemplaza esto con la cantidad de imágenes que tengas
-                      itemBuilder: (BuildContext context, int index) {
-                        return GestureDetector(
-                          onTap: () async {
-                            Uri link = infoURLs[index];
-                            await launchUrl(link);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(25.0),
+                Visibility(
+                  visible: false,
+                  child: Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 0.0, 0.0),
+                    child: Container(
+                      height: 100, // Establece la altura del contenedor
+                      child: ListView.builder(
+                        scrollDirection: Axis
+                            .horizontal, // Permite el desplazamiento horizontal
+                        itemCount: imageURLs
+                            .length, // Reemplaza esto con la cantidad de imágenes que tengas
+                        itemBuilder: (BuildContext context, int index) {
+                          return GestureDetector(
+                            onTap: () async {
+                              Uri link = infoURLs[index];
+                              await launchUrl(link);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                              padding: EdgeInsets.all(5),
+                              width: 200,
+                              margin: EdgeInsets.only(right: 15),
+                              child: Image.network(
+                                imageURLs[index],
+                                width: 160,
+                                height: 80,
+                                fit: BoxFit.contain,
+                              ),
                             ),
-                            padding: EdgeInsets.all(5),
-                            width: 200,
-                            margin: EdgeInsets.only(right: 15),
-                            child: Image.network(
-                              imageURLs[index],
-                              width: 160,
-                              height: 80,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 )

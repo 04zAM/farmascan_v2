@@ -10,6 +10,7 @@ import 'dart:io';
 
 class ApiService {
   final timeoutDuration = Duration(seconds: 60);
+  final timeoutDurationPostDocument = Duration(seconds: 120);
   String ipDigitalizacion = '192.168.240.6/ITEDigitalizacionAPI3';
   String servicePlataformaMovil = 'ws_plataformamovil/Service1.svc';
   String ipOCR = '192.168.240.6:8081';
@@ -68,11 +69,12 @@ class ApiService {
       final timeoutSeconds = timeoutDuration.inSeconds;
       throw Exception(
           'Tiempo de espera agotado. No se pudo conectar al servidor en $timeoutSeconds segundos.');
-    } catch (e, stackTrace) {
-      print('Error: $e');
-      print('StackTrace: $stackTrace');
-      throw Exception(
-          'Error inesperado en la línea ${stackTrace.toString().split('\n')[1]}');
+    } catch (e) {
+      if (e.toString().contains('Failed host')) {
+        throw Exception('No se pudo conectar al servidor, verifique la IP.');
+      } else {
+        throw Exception('$e \n Verifique y vuelva a intentar.');
+      }
     }
   }
 
@@ -290,7 +292,7 @@ class ApiService {
             headers: cabecera,
             body: jsonEncode(documento.toJson()),
           )
-          .timeout(timeoutDuration);
+          .timeout(timeoutDurationPostDocument);
 
       if (response.statusCode == 200) {
         final utf8DecodedBody = utf8.decode(response.bodyBytes);

@@ -157,11 +157,9 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2101),
               );
-              if (selectedDate != null) {
-                controller.text =
-                    selectedDate.toLocal().toString().split(' ')[0];
-                _checkFields();
-              }
+              controller.text =
+                  selectedDate!.toLocal().toString().split(' ')[0];
+              _checkFields();
             },
           ),
         );
@@ -257,7 +255,7 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
     Set<String> messagesShown = Set<String>();
     final List<dynamic> orderDocs = [];
     if (documentFields.farmascanMl.isEmpty) {
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => GalleryPageWidget(
@@ -265,6 +263,7 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
             orderDocs: [],
           ),
         ),
+        (route) => false,
       );
     } else {
       String orderMessage =
@@ -327,6 +326,7 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
       }
 
       QuickAlert.show(
+          barrierDismissible: false,
           context: context,
           type: QuickAlertType.info,
           widget: Text(orderMessage,
@@ -338,7 +338,7 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
           confirmBtnText: 'Continuar',
           cancelBtnText: 'Atras',
           confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
-          onConfirmBtnTap: () => Navigator.push(
+          onConfirmBtnTap: () => Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
                   builder: (context) => GalleryPageWidget(
@@ -346,6 +346,7 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
                     orderDocs: orderDocs,
                   ),
                 ),
+                (route) => false,
               ));
     }
   }
@@ -413,41 +414,39 @@ class _DocumentPageWidgetState extends State<DocumentPageWidget> {
                         ),
                   ),
                 ),
-                Expanded(child: ListView(children: dynamicFields)),
-                if (_isButtonEnabled == true)
-                  Padding(
-                    padding:
-                        EdgeInsetsDirectional.fromSTEB(0.0, 25.0, 0.0, 0.0),
-                    child: _isButtonEnabled == false
-                        ? const SizedBox() // No muestra el botón si documentSelected.catCodigo == 0
-                        : FFButtonWidget(
-                            onPressed: () async {
-                              _setDocumentFields();
-                              _getDocumentsOrder();
-                            },
-                            text: 'Seleccionar',
-                            options: FFButtonOptions(
-                              height: 40.0,
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  24.0, 0.0, 24.0, 0.0),
-                              iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 0.0, 0.0),
-                              color: Colors.indigo,
-                              textStyle: FlutterFlowTheme.of(context)
-                                  .titleSmall
-                                  .override(
-                                    fontFamily: 'Readex Pro',
-                                    color: Colors.white,
-                                  ),
-                              elevation: 3.0,
-                              borderSide: BorderSide(
-                                color: Colors.transparent,
-                                width: 1.0,
+                Expanded(
+                  child: ListView(children: dynamicFields),
+                ),
+                SizedBox(height: 20),
+                Visibility(
+                  visible: _isButtonEnabled,
+                  child: FFButtonWidget(
+                    onPressed: () async {
+                      _setDocumentFields();
+                      _getDocumentsOrder();
+                    },
+                    text: 'Aceptar',
+                    options: FFButtonOptions(
+                      height: 40.0,
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
+                      iconPadding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                      color: Colors.indigo,
+                      textStyle:
+                          FlutterFlowTheme.of(context).titleSmall.override(
+                                fontFamily: 'Readex Pro',
+                                color: Colors.white,
                               ),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                  )
+                      elevation: 3.0,
+                      borderSide: BorderSide(
+                        color: Colors.transparent,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

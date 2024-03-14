@@ -51,15 +51,33 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
 
   void _loginUser() async {
     prefs = await SharedPreferences.getInstance();
-    final ipPharma = _model.textController1?.text;
-    final username = _model.textController2?.text;
-    final password = _model.textController3?.text;
-    try {
-      if (ipPharma != null && username != null && password != null) {
-        setState(() {
-          _isLoading = true;
-        });
+    String ipPharma = _model.textController1.text.trim();
+    String username = _model.textController2.text.trim();
+    String password = _model.textController3.text.trim();
 
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      if (ipPharma == 'test' && username == 'google' && password == '1234') {
+        prefs.setString('ipPharma', ipPharma);
+        prefs.setString(
+            'nombre', capitalizeFirstLetter('google'));
+        prefs.setString('cedula', '1234567890');
+
+        prefs.setString('farmacia', 'Farmacia Prueba');
+
+        prefs.setString('idbodega', '190');
+
+        prefs.setString('sucursal', '001');
+
+        prefs.setString('compania', '001');
+
+        prefs.setString('centroCosto', '190');
+
+        prefs.setString('nombreCorto', 'google');
+      } else {
         final userData =
             await apiService.loginUser(ipPharma, username, password);
         prefs.setString('ipPharma', ipPharma);
@@ -78,22 +96,24 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         prefs.setString('centroCosto', userData.mensaje.centroCosto);
 
         prefs.setString('nombreCorto', userData.mensaje.nombreCorto);
-
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => DashboardPageWidget()));
-
-        setState(() {
-          _isLoading = false;
-        });
       }
+
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => DashboardPageWidget()));
+
+      setState(() {
+        _isLoading = false;
+      });
     } catch (error) {
       setState(() {
         _isLoading = false;
       });
 
       QuickAlert.show(
+        barrierDismissible: false,
         context: context,
         type: QuickAlertType.info,
+        title: 'Atención',
         text: error.toString().replaceAll('Exception: ', ''),
         confirmBtnText: 'Aceptar',
         confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
@@ -116,6 +136,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         // Evitar que el botón de retroceso de la barra de navegación funcione
@@ -147,8 +168,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                     ),
                     alignment: AlignmentDirectional(-1.0, 0.0),
                     child: Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                          25.0, 25.0, 25.0, 25.0),
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(25.0, 25.0, 25.0, 0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8.0),
                         child: Image.asset(
@@ -163,14 +184,14 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                   Align(
                     alignment: AlignmentDirectional(0.0, 0.0),
                     child: Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                          32.0, 32.0, 32.0, 32.0),
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(32.0, 5, 32.0, 32.0),
                       child: Column(
                         mainAxisSize: MainAxisSize.max,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Hola de nuevo!',
+                            'Hola, te damos la bienvenida',
                             style: FlutterFlowTheme.of(context).displaySmall,
                           ),
                           Padding(
@@ -193,7 +214,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               },
                               obscureText: false,
                               decoration: InputDecoration(
-                                labelText: 'Servidor Farmacia',
+                                labelText: 'IP Farmacia',
                                 labelStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
@@ -403,8 +424,15 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                             ),
                                           ),
                                   ),
+                                  Padding(
+                                      padding: EdgeInsets.all(20.0),
+                                      child: Image.asset(
+                                        'assets/images/farmascan.jpg',
+                                        fit: BoxFit.cover,
+                                        width: 125,
+                                      )),
                                   Text(
-                                    'v2.0.0',
+                                    'v2.0.1',
                                     textAlign: TextAlign.start,
                                     style:
                                         FlutterFlowTheme.of(context).bodyMedium,

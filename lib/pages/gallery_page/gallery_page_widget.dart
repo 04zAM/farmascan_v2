@@ -6,8 +6,8 @@ import 'package:app_farma_scan_v2/index.dart';
 import 'package:app_farma_scan_v2/models/documentFieldsData_model.dart';
 import 'package:app_farma_scan_v2/pages/image_preview_page/image_preview_widget.dart';
 import 'package:app_farma_scan_v2/services/api_service.dart';
-import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:quickalert/quickalert.dart';
@@ -54,200 +54,55 @@ class _GalleryPageState extends State<GalleryPageWidget> {
   }
 
   void _loadImagesFromGallery() async {
-    setState(() {
-      _isLoading = true;
-    });
-    final pickedFiles = await ImagePicker().pickMultiImage();
-    int index = _images.length + pickedFiles.length - 1;
-    for (var pickedFile in pickedFiles) {
-      final file = File(pickedFile.path);
-      var originalImage = img.decodeImage(await file.readAsBytes());
-      if (originalImage != null) {
-        final originalEncoded = img.encodeJpg(originalImage);
-        final originalImageBase64 = base64Encode(originalEncoded);
-        var decodedImage = img.decodeImage(await file.readAsBytes());
-        if (decodedImage != null) {
-          if (decodedImage.width > decodedImage.height) {
-            decodedImage = img.copyRotate(decodedImage, angle: 90);
-            file.writeAsBytesSync(img.encodeJpg(decodedImage));
-          }
+    try {
+      showLoading(context);
+      final pickedFiles = await ImagePicker().pickMultiImage(
+          maxHeight: 1500,
+          maxWidth: 1500,
+          imageQuality: 70,);
 
-          if (orderDocs.isNotEmpty &&
-              index < orderDocs.length &&
-              orderDocs[index] != null &&
-              orderDocs[index]['ocr'] == 'S') {
-            String checkOcr = await apiService.postOCR(
-              originalImageBase64,
-              orderDocs[index]['codigo'],
-            );
-            if (checkOcr.contains("Vuelva a escanear")) {
-              setState(() {
-                _isLoading = false;
-              });
-              QuickAlert.show(
-                context: context,
-                type: QuickAlertType.error,
-                title: 'Error',
-                widget: SingleChildScrollView(
-                  child: Text(
-                    'El documento escaneado no corresponde al orden solicitado, por favor verifique.',
-                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                          fontFamily: 'Readex Pro',
-                          fontSize: 16.0,
-                        ),
-                  ),
-                ),
-                confirmBtnText: 'Aceptar',
-                confirmBtnColor: Color.fromARGB(255, 222, 0, 56),
-                onConfirmBtnTap: () => Navigator.pop(context),
-              );
-            } else {
-              index++;
-              setState(() {
-                _tempImages.add(file);
-              });
-            }
-          } else {
-            setState(() {
-              _tempImages.add(file);
-            });
-          }
-        }
-      } else {
-        QuickAlert.show(
+      if (pickedFiles.isNotEmpty) {
+        List<File> fileList = await _processGalleryImages(pickedFiles);
+
+        if (fileList.isEmpty) {
+          Navigator.pop(context);
+          QuickAlert.show(
+            barrierDismissible: false,
             context: context,
             type: QuickAlertType.error,
             title: 'Error',
-            widget: Text(
-                'No se pudo cargar la imagen ${pickedFile.name}, por favor intente de nuevo. Formatos permitidos JPG, PNG.',
+            widget: SingleChildScrollView(
+              child: Text(
+                'Seleccione los documentos de acuerdo al orden solicitado.',
                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                       fontFamily: 'Readex Pro',
                       fontSize: 16.0,
-                    )),
+                    ),
+              ),
+            ),
             confirmBtnText: 'Aceptar',
             confirmBtnColor: Color.fromARGB(255, 222, 0, 56),
-            onConfirmBtnTap: () => Navigator.pop(context));
-      }
-    }
-    _images = List.from(_tempImages);
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  void _loadImageFromCamera() async {
-    try {
-      if (orderDocs.isNotEmpty &&
-          _images.length < orderDocs.length &&
-          orderDocs[_images.length]['ocr'] == 'S') {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.info,
-          title: 'Atención!',
-          widget: SingleChildScrollView(
-            child: Text(
-              'Usted va a digitalizar' +
-                  ' ' +
-                  ((orderDocs.length > _images.length)
-                      ? orderDocs[_images.length]['mensaje']
-                      : 'DOCUMENTOS COMPLEMENTARIOS') +
-                  '.',
-              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                    fontFamily: 'Readex Pro',
-                    fontSize: 16.0,
-                  ),
-            ),
-          ),
-          confirmBtnText: 'Aceptar',
-          confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
-          onConfirmBtnTap: () async {
-            final pickedFiles = await CunningDocumentScanner.getPictures(true);
-            //Cerrar el quickalert
-            Navigator.pop(context);
-            setState(() {
-              _isLoading = true;
-            });
-            if (pickedFiles != null) {
-              final imageBase64 =
-                  base64Encode(File(pickedFiles.first).readAsBytesSync());
-              String checkOcr = await apiService.postOCR(
-                imageBase64,
-                orderDocs[_images.length]['codigo'],
-              );
-              if (checkOcr.contains("Vuelva a escanear")) {
-                setState(() {
-                  _isLoading = false;
-                });
-                QuickAlert.show(
-                  context: context,
-                  type: QuickAlertType.error,
-                  title: 'Error',
-                  widget: SingleChildScrollView(
-                    child: Text(
-                      'El documento escaneado no corresponde al orden solicitado, por favor verifique.',
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            fontFamily: 'Readex Pro',
-                            fontSize: 16.0,
-                          ),
-                    ),
-                  ),
-                  confirmBtnText: 'Aceptar',
-                  confirmBtnColor: Color.fromARGB(255, 222, 0, 56),
-                  onConfirmBtnTap: () => Navigator.pop(context),
-                );
-              } else {
-                setState(() {
-                  _isLoading = true;
-                });
-                for (var pickedFile in pickedFiles) {
-                  final file = File(pickedFile);
-                  var decodedImage = img.decodeImage(await file.readAsBytes());
-                  if (decodedImage!.width > decodedImage.height) {
-                    decodedImage = img.copyRotate(decodedImage, angle: 90);
-                    file.writeAsBytesSync(img.encodeJpg(decodedImage));
-                  }
-                }
-                setState(() {
-                  _tempImages.add(File(pickedFiles.first));
-                  _images = List.from(_tempImages);
-                  _isLoading = false;
-                });
-              }
-            }
-          },
-        );
-      } else {
-        final pickedFiles = await CunningDocumentScanner.getPictures(true);
-        if (pickedFiles != null) {
+            onConfirmBtnTap: () => Navigator.pop(context),
+          );
+        } else {
+          Navigator.pop(context);
           setState(() {
-            _isLoading = true;
-          });
-          for (var pickedFile in pickedFiles) {
-            final file = File(pickedFile);
-            var decodedImage = img.decodeImage(await file.readAsBytes());
-            if (decodedImage!.width > decodedImage.height) {
-              decodedImage = img.copyRotate(decodedImage, angle: 90);
-              file.writeAsBytesSync(img.encodeJpg(decodedImage));
-            }
-          }
-          setState(() {
-            _tempImages.addAll(pickedFiles.map((e) => File(e)).toList());
+            _tempImages.addAll(fileList);
             _images = List.from(_tempImages);
-            _isLoading = false;
           });
         }
+      } else {
+        Navigator.pop(context);
       }
-    } catch (e, stackTrace) {
-      setState(() {
-        _isLoading = false;
-      });
-
+    } catch (e) {
+      Navigator.pop(context);
       QuickAlert.show(
+        barrierDismissible: false,
         context: context,
         type: QuickAlertType.error,
         title: 'Error',
         widget: Text(
-          'Se produjo un error al cargar imágenes desde la cámara. $e. $stackTrace',
+          'Se produjo un error al cargar imágenes desde la galería. $e',
           style: FlutterFlowTheme.of(context).bodyMedium.override(
                 fontFamily: 'Readex Pro',
                 fontSize: 16.0,
@@ -258,6 +113,165 @@ class _GalleryPageState extends State<GalleryPageWidget> {
         onConfirmBtnTap: () => Navigator.pop(context),
       );
     }
+  }
+
+  Future<List<File>> _processGalleryImages(List<XFile> images) async {
+    List<File> processedImages = [];
+    int index = _images.length;
+    if (_images.length != 0) {
+      index = _images.length + images.length - 1;
+    }
+    for (var image in images) {
+      final file = File(image.path);
+      var decodedImage = img.decodeImage(await file.readAsBytes());
+
+      if (decodedImage!.width > decodedImage.height) {
+        decodedImage = img.copyRotate(decodedImage, angle: 90);
+        file.writeAsBytesSync(img.encodeJpg(decodedImage));
+      }
+
+      if (orderDocs.isNotEmpty &&
+          index <= 1 &&
+          orderDocs[index]['ocr'] == 'S') {
+        var imageJPG = img.encodeJpg(decodedImage);
+        final base64Image = base64Encode(imageJPG);
+        String checkOcr = await apiService.postOCR(
+          base64Image,
+          orderDocs[index]['codigo'],
+        );
+        if (checkOcr.contains("Vuelva a escanear")) {
+          return processedImages;
+        } else {
+          processedImages.add(file);
+          index++;
+        }
+      } else {
+        processedImages.add(file);
+      }
+    }
+    return processedImages;
+  }
+
+  void _loadImageFromCamera() async {
+    try {
+      showLoading(context);
+      /* List<String> pickedFile;
+      pickedFile = await CunningDocumentScanner.getPictures(true) ?? []; */
+      XFile? pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        maxHeight: 1500,
+        maxWidth: 1500,
+      );
+
+      if (pickedFile != null) {
+        //Recortar la imagen
+        CroppedFile? croppedFile = await ImageCropper().cropImage(
+          sourcePath: pickedFile.path,
+          aspectRatioPresets: [
+            CropAspectRatioPreset.original,
+          ],
+          uiSettings: [
+            AndroidUiSettings(
+                toolbarTitle: 'Recortar imagen',
+                toolbarColor: Color(0xFF80BC00),
+                toolbarWidgetColor: Colors.white,
+                initAspectRatio: CropAspectRatioPreset.original,
+                lockAspectRatio: false),
+            IOSUiSettings(
+              title: 'Recortar imagen',
+            ),
+            WebUiSettings(
+              context: context,
+            ),
+          ],
+        );
+
+        if (croppedFile == null) {
+          Navigator.pop(context);
+          return;
+        }
+        File imageFile = File(croppedFile.path);
+
+        if (!mounted) return;
+        //String imagePath = pickedFile[0];
+        // Procesa la imagen en segundo plano
+        File image = await _processCameraImages(imageFile);
+        setState(() {
+          _images.add(image);
+          _tempImages.add(image);
+        });
+        Navigator.pop(context);
+      } else {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      Navigator.pop(context);
+      QuickAlert.show(
+        barrierDismissible: false,
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Error',
+        widget: Text(
+          'Oops ha ocurrido algo inesperado: $e',
+          style: FlutterFlowTheme.of(context).bodyMedium.override(
+                fontFamily: 'Readex Pro',
+                fontSize: 16.0,
+              ),
+        ),
+        confirmBtnText: 'Aceptar',
+        confirmBtnColor: Color.fromARGB(255, 222, 0, 56),
+        onConfirmBtnTap: () => Navigator.pop(context),
+      );
+      throw e;
+    }
+  }
+
+  Future<File> _processCameraImages(File file) async {
+    var decodedImage = img.decodeImage(await file.readAsBytes());
+
+    // Realiza la rotación si es necesario
+    if (decodedImage!.width > decodedImage.height) {
+      decodedImage = img.copyRotate(decodedImage, angle: 90);
+      await file.writeAsBytes(img.encodeJpg(decodedImage));
+    }
+
+    // Si no se necesita OCR, devuelve el archivo original
+    if (orderDocs.isEmpty ||
+        _images.length >= orderDocs.length ||
+        orderDocs[_images.length]['ocr'] == 'N') {
+      return file;
+    }
+
+    // Realiza el OCR si es necesario
+    if (orderDocs.isNotEmpty &&
+        _images.length <= 1 &&
+        orderDocs[_images.length]['ocr'] == 'S') {
+      final imageJPG = img.encodeJpg(decodedImage);
+      final base64Image = base64Encode(imageJPG);
+      String checkOcr = await apiService.postOCR(
+        base64Image,
+        orderDocs[_images.length]['codigo'],
+      );
+      if (checkOcr.contains("Vuelva a escanear")) {
+        throw 'El orden de los documentos no coincide con el solicitado. Vuelva a escanear los documentos en el orden solicitado.';
+      }
+    }
+
+    return file;
+  }
+
+  static dynamic showLoading(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return Center(
+            child: LoadingAnimationWidget.staggeredDotsWave(
+              color: Colors.white,
+              size: 100,
+            ),
+          );
+        });
   }
 
   void _imagestoBase64() {
@@ -295,89 +309,139 @@ class _GalleryPageState extends State<GalleryPageWidget> {
   }
 
   void _uploadDocuments() async {
-    setState(() {
-      _isLoading = true;
-    });
-    List<String> digiCodes = [];
-    List<String> infoCodes = [];
-    _imagestoBase64();
-    for (DocumentFieldsData document in documents) {
-      _completeData(document);
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      List<String> digiCodes = [];
+      List<String> infoCodes = [];
+      _imagestoBase64();
+      for (DocumentFieldsData document in documents) {
+        try {
+          _completeData(document);
 
-      Map<String, dynamic> response = await apiService.postDocuments(document);
-      if (response['status_code'] == 200) {
-        digiCodes.add('${document.nombre}: ${response['mensaje']}');
-      } else {
-        infoCodes.add('${document.nombre}\n${response['mensaje']}');
+          Map<String, dynamic> response =
+              await apiService.postDocuments(document);
+          if (response['status_code'] == 200) {
+            digiCodes.add('${document.nombre}: ${response['mensaje']}');
+          } else {
+            infoCodes.add('${document.nombre}\n${response['mensaje']}');
+          }
+        } catch (error) {
+          infoCodes.add('${document.nombre}\nError de conexión: $error');
+        }
       }
-    }
 
-    if (digiCodes.isNotEmpty) {
-      String successMessages = '\n';
-      for (int i = 0; i < digiCodes.length; i++) {
-        successMessages +=
-            '${i + 1}. ${digiCodes[i].replaceAll(RegExp(r'[{}\[\],]'), '')}\n';
-      }
-      QuickAlert.show(
+      if (digiCodes.isNotEmpty) {
+        String successMessages = '\n';
+        for (int i = 0; i < digiCodes.length; i++) {
+          successMessages +=
+              '${i + 1}. ${digiCodes[i].replaceAll(RegExp(r'[{}\[\],]'), '')}\n';
+        }
+        setState(() {
+          _isLoading = false;
+        });
+        QuickAlert.show(
+          barrierDismissible: false,
           context: context,
           type: QuickAlertType.success,
           title: 'Digitalización enviada',
           widget: Text(
-              'Se ha enviado los siguientes documentos al servidor: \n $successMessages',
-              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                    fontFamily: 'Readex Pro',
-                    fontSize: 16.0,
-                  )),
-          confirmBtnText: 'Aceptar',
-          confirmBtnColor: const Color.fromARGB(255, 21, 192, 106),
-          onConfirmBtnTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => DashboardPageWidget()),
-              ));
-    }
-
-    if (infoCodes.isNotEmpty) {
-      List<String> uniqueinfoCodes = [];
-      for (String info in infoCodes) {
-        if (!uniqueinfoCodes.contains(info)) {
-          uniqueinfoCodes.add(info);
-        }
-      }
-      infoCodes = uniqueinfoCodes;
-
-      String infoMessages =
-          'Existen las siguientes novedades en las digitalizaciones:\n\n';
-      for (int i = 0; i < infoCodes.length; i++) {
-        infoMessages +=
-            '${i + 1}. ${infoCodes[i].replaceAll(RegExp(r'[{}\[\],]'), '')}\n';
-      }
-
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.info,
-        title: 'Atención!',
-        widget: SingleChildScrollView(
-          child: Text(
-            '$infoMessages',
+            'Se ha enviado los siguientes documentos al servidor: \n $successMessages',
             style: FlutterFlowTheme.of(context).bodyMedium.override(
                   fontFamily: 'Readex Pro',
                   fontSize: 16.0,
                 ),
           ),
+          confirmBtnText: 'Aceptar',
+          confirmBtnColor: const Color.fromARGB(255, 21, 192, 106),
+          onConfirmBtnTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DashboardPageWidget()),
+          ),
+        );
+      }
+
+      if (infoCodes.isNotEmpty) {
+        List<String> uniqueinfoCodes = [];
+        for (String info in infoCodes) {
+          if (!uniqueinfoCodes.contains(info)) {
+            uniqueinfoCodes.add(info);
+          }
+        }
+        infoCodes = uniqueinfoCodes;
+
+        String infoMessages =
+            'Existen las siguientes novedades en las digitalizaciones:\n\n';
+        for (int i = 0; i < infoCodes.length; i++) {
+          infoMessages +=
+              '${i + 1}. ${infoCodes[i].replaceAll(RegExp(r'[{}\[\],]'), '')}\n';
+        }
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        QuickAlert.show(
+            barrierDismissible: false,
+            context: context,
+            type: QuickAlertType.info,
+            title: 'Atención!',
+            widget: SingleChildScrollView(
+              child: Text(
+                '$infoMessages',
+                style: FlutterFlowTheme.of(context).bodyMedium.override(
+                      fontFamily: 'Readex Pro',
+                      fontSize: 16.0,
+                    ),
+              ),
+            ),
+            confirmBtnText: 'Aceptar',
+            confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
+            onConfirmBtnTap: () => {
+                  if (digiCodes.isEmpty)
+                    {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DashboardPageWidget()),
+                      )
+                    }
+                  else
+                    {Navigator.pop(context)}
+                });
+      }
+    } catch (error) {
+      print('Error: $error');
+      QuickAlert.show(
+        barrierDismissible: false,
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Error',
+        widget: Text(
+          'Se produjo un error al enviar las digitalizaciones. $error',
+          style: FlutterFlowTheme.of(context).bodyMedium.override(
+                fontFamily: 'Readex Pro',
+                fontSize: 16.0,
+              ),
         ),
         confirmBtnText: 'Aceptar',
-        confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
-        onConfirmBtnTap: () => Navigator.pop(context),
+        confirmBtnColor: Color.fromARGB(255, 222, 0, 56),
+        onConfirmBtnTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardPageWidget()),
+        ),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   void _sendDigitalization() async {
     QuickAlert.show(
+      barrierDismissible: false,
       context: context,
       type: QuickAlertType.confirm,
       title: 'Atención!',
@@ -450,6 +514,7 @@ class _GalleryPageState extends State<GalleryPageWidget> {
         ),
       );
     }
+    // ignore: deprecated_member_use
     return WillPopScope(
         child: Scaffold(
           appBar: AppBar(
@@ -528,12 +593,16 @@ class _GalleryPageState extends State<GalleryPageWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    FloatingActionButton(
-                      onPressed: _clearImages,
-                      tooltip: 'Limpiar imágenes',
-                      backgroundColor: Colors.red,
-                      child: const Icon(Icons.delete_sweep),
-                      heroTag: 'clear_images',
+                    Visibility(
+                      visible: _images.isNotEmpty,
+                      child: FloatingActionButton(
+                        onPressed: _clearImages,
+                        tooltip: 'Limpiar imágenes',
+                        backgroundColor: Colors.red,
+                        child:
+                            const Icon(Icons.delete_sweep, color: Colors.white),
+                        heroTag: 'clear_images',
+                      ),
                     ),
                   ],
                 ),
@@ -541,31 +610,37 @@ class _GalleryPageState extends State<GalleryPageWidget> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    FloatingActionButton(
-                      onPressed: _images.isEmpty
-                          ? () => QuickAlert.show(
-                                context: context,
-                                type: QuickAlertType.error,
-                                title: 'Error',
-                                widget: Text(
-                                    'No se han cargado imágenes en el tablero.',
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          fontFamily: 'Readex Pro',
-                                          fontSize: 16.0,
-                                        )),
-                                confirmBtnText: 'Aceptar',
-                                confirmBtnColor:
-                                    Color.fromARGB(255, 222, 0, 56),
-                                onConfirmBtnTap: () => Navigator.pop(context),
-                              )
-                          : _sendDigitalization,
-                      tooltip: 'Enviar documento',
-                      backgroundColor:
-                          _images.isEmpty ? Colors.orange[200] : Colors.orange,
-                      child: const Icon(Icons.send_and_archive),
-                      heroTag: 'send_images',
+                    Visibility(
+                      visible: _images.isNotEmpty,
+                      child: FloatingActionButton(
+                        onPressed: _images.isEmpty
+                            ? () => QuickAlert.show(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  type: QuickAlertType.info,
+                                  title: 'Error',
+                                  widget: Text(
+                                      'No se han cargado imágenes en el tablero.',
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily: 'Readex Pro',
+                                            fontSize: 16.0,
+                                          )),
+                                  confirmBtnText: 'Aceptar',
+                                  confirmBtnColor:
+                                      Color.fromARGB(255, 255, 201, 70),
+                                  onConfirmBtnTap: () => Navigator.pop(context),
+                                )
+                            : _sendDigitalization,
+                        tooltip: 'Enviar documento',
+                        backgroundColor: Colors.orange,
+                        child: const Icon(
+                          Icons.send_and_archive,
+                          color: Colors.white,
+                        ),
+                        heroTag: 'send_images',
+                      ),
                     ),
                   ],
                 ),
@@ -577,15 +652,55 @@ class _GalleryPageState extends State<GalleryPageWidget> {
                       onPressed: _loadImagesFromGallery,
                       tooltip: 'Cargar desde la galería',
                       backgroundColor: Colors.indigo,
-                      child: const Icon(Icons.photo_library),
+                      child:
+                          const Icon(Icons.photo_library, color: Colors.white),
                       heroTag: 'load_gallery',
                     ),
                     const SizedBox(height: 16),
                     FloatingActionButton(
-                      onPressed: _loadImageFromCamera,
+                      onPressed: () => {
+                        if (orderDocs.isNotEmpty &&
+                            _images.length < orderDocs.length &&
+                            orderDocs[_images.length]['ocr'] == 'S')
+                          {
+                            QuickAlert.show(
+                              barrierDismissible: false,
+                              context: context,
+                              type: QuickAlertType.info,
+                              title: 'Atención!',
+                              widget: SingleChildScrollView(
+                                child: Text(
+                                  'Usted va a digitalizar' +
+                                      ' ' +
+                                      ((orderDocs.length > _images.length)
+                                          ? orderDocs[_images.length]['mensaje']
+                                          : 'DOCUMENTOS COMPLEMENTARIOS') +
+                                      '.',
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        fontFamily: 'Readex Pro',
+                                        fontSize: 16.0,
+                                      ),
+                                ),
+                              ),
+                              confirmBtnText: 'Aceptar',
+                              confirmBtnColor:
+                                  Color.fromARGB(255, 255, 201, 70),
+                              onConfirmBtnTap: () {
+                                Navigator.pop(context);
+                                _loadImageFromCamera();
+                              },
+                            )
+                          }
+                        else
+                          {
+                            _loadImageFromCamera(),
+                          }
+                      },
                       tooltip: 'Cargar desde la cámara',
                       backgroundColor: const Color.fromARGB(255, 11, 161, 175),
-                      child: const Icon(Icons.camera_alt),
+                      child: const Icon(Icons.camera_alt, color: Colors.white),
                       heroTag: 'load_camera',
                     ),
                   ],

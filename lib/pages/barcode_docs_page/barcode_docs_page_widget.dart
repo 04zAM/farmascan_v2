@@ -140,6 +140,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
         }
 
         QuickAlert.show(
+            barrierDismissible: false,
             context: context,
             type: QuickAlertType.success,
             title: 'Documentos Encontrados',
@@ -162,6 +163,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
           _isLoading = false;
         });
         QuickAlert.show(
+          barrierDismissible: false,
           context: context,
           type: QuickAlertType.info,
           text: response['mensaje'],
@@ -174,6 +176,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
         _isLoading = false;
       });
       QuickAlert.show(
+        barrierDismissible: false,
         context: context,
         type: QuickAlertType.error,
         text: e.toString().replaceAll('Exception: ', ''),
@@ -222,6 +225,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
         ),
       );
     }
+    // ignore: deprecated_member_use
     return WillPopScope(
         child: GestureDetector(
           onTap: () => FocusScope.of(context).requestFocus(_model.unfocusNode),
@@ -479,7 +483,7 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       0.0, 15.0, 0.0, 0.0),
                                   child: Text(
-                                    '- Para digitalizar convenios  y cupones por favor ingrese las iniciales 002F y luego el número de documento sin guiones.',
+                                    '- Para digitalizar convenios  y cupones por favor ingrese el número de documento sin guiones.',
                                     textAlign: TextAlign.justify,
                                     style:
                                         FlutterFlowTheme.of(context).bodyMedium,

@@ -1,4 +1,4 @@
-# App FarmaScan
+# FarmaScan
 
 A new Flutter project.
 

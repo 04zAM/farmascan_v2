@@ -30,7 +30,13 @@ class ImagePreview extends StatelessWidget {
         child: Hero(
           tag:
               'imageTag', // Asegúrate de que coincida con el mismo 'tag' usado en la miniatura
-          child: Image.file(image),
+          child: InteractiveViewer(
+            panEnabled: true,
+            minScale: 0.1, // Escala mínima
+            maxScale: 8.0,
+            // Escala máxima
+            child: Image.file(image),
+          ),
         ),
       ),
     );

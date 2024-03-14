@@ -137,6 +137,7 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
     }
 
     QuickAlert.show(
+        barrierDismissible: false,
         context: context,
         type: QuickAlertType.info,
         title: 'Atención!',
@@ -149,7 +150,7 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
         confirmBtnText: 'Continuar',
         cancelBtnText: 'Atras',
         confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
-        onConfirmBtnTap: () => Navigator.push(
+        onConfirmBtnTap: () => Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
                 builder: (context) => GalleryPageWidget(
@@ -157,6 +158,7 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
                   orderDocs: orderDocs,
                 ),
               ),
+              (route) => false,
             ));
   }
 
@@ -441,17 +443,16 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
               Positioned(
                 bottom: 20,
                 right: 20,
-                child: FloatingActionButton(
-                  onPressed: _currentPage == dynamicCards.length - 1
-                      ? _getDocumentsOrder
-                      : null,
-                  child: Icon(Icons.photo_library),
-                  backgroundColor: _currentPage == dynamicCards.length - 1
-                      ? Color(0xFF6126E0)
-                      : Colors.indigo[200],
-                  tooltip: _currentPage == dynamicCards.length - 1
-                      ? 'Agregar Imágenes'
-                      : '',
+                child: Visibility(
+                  visible: _currentPage == dynamicCards.length - 1,
+                  child: FloatingActionButton(
+                    onPressed: _currentPage == dynamicCards.length - 1
+                        ? _getDocumentsOrder
+                        : null,
+                    child: Icon(Icons.photo_library, color: Colors.white),
+                    backgroundColor: Color(0xFF6126E0),
+                    tooltip: 'Agregar Imágenes',
+                  ),
                 ),
               ),
             ],
