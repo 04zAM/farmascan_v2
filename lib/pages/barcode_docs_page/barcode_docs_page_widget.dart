@@ -147,17 +147,20 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
             widget: Text(capitalizeFirstLetter(nuevoMensaje),
                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                       fontFamily: 'Readex Pro',
-                      fontSize: 16.0,
+                      fontSize: 14.0,
                     )),
             confirmBtnText: 'Aceptar',
             confirmBtnColor: const Color.fromARGB(255, 21, 192, 106),
-            onConfirmBtnTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DocumentsPageWidget(
-                            documentsStructureList: documentsStuctures,
-                          )),
-                ));
+            onConfirmBtnTap: () {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => DocumentsPageWidget(
+                          documentsStructureList: documentsStuctures,
+                        )),
+              );
+            });
       } else {
         setState(() {
           _isLoading = false;
@@ -243,6 +246,10 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                       fontSize: 18.0,
                     ),
               ),
+              iconTheme: IconThemeData(
+                color: Colors
+                    .white, // Cambia el color de la flecha de retroceso aquí
+              ),
               actions: [],
               centerTitle: false,
               elevation: 2.0,
@@ -255,288 +262,364 @@ class _BarcodeDocsPageWidgetState extends State<BarcodeDocsPageWidget> {
                   width: MediaQuery.sizeOf(context).width * 1.0,
                   height: MediaQuery.sizeOf(context).height * 1.0,
                   decoration: BoxDecoration(),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Ingrese el Nro. de Documento:',
-                        textAlign: TextAlign.start,
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              fontFamily: 'Readex Pro',
-                              fontSize: 18.0,
-                            ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0, 8.0, 8.0, 8.0),
-                              child: Container(
-                                width: double.infinity,
-                                height: 50.0,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryBackground,
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  border: Border.all(
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryText,
-                                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 5.0, 0.0, 0.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Ingrese el nro. del documento',
+                                textAlign: TextAlign.center,
+                                style: FlutterFlowTheme.of(context)
+                                    .headlineSmall
+                                    .override(
+                                      fontFamily: 'Outfit',
+                                      color: Colors.indigo,
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                              Image.asset(
+                                'assets/lottie_animations/info.gif',
+                                width: 220,
+                                height: 110,
+                                fit: BoxFit.cover,
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    0.0, 15.0, 0.0, 0.0),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Para:',
+                                      textAlign: TextAlign.center,
+                                      style: FlutterFlowTheme.of(context)
+                                          .headlineSmall
+                                          .override(
+                                            fontFamily: 'Outfit',
+                                            color: Colors.indigo,
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                  ],
                                 ),
-                                child: Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      8.0, 0.0, 8.0, 0.0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            4.0, 0.0, 4.0, 0.0),
-                                        child: Icon(
-                                          Icons.document_scanner_outlined,
-                                          color: Colors.blueGrey,
-                                          size: 24.0,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  4.0, 0.0, 0.0, 0.0),
-                                          child: TextFormField(
-                                            controller: _model.textController,
-                                            onChanged: (_) =>
-                                                EasyDebounce.debounce(
-                                              '_model.textController',
-                                              Duration(milliseconds: 2000),
-                                              () => setState(() {}),
+                              ),
+                              Column(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 15.0, 0.0, 0.0),
+                                    child: Text(
+                                      'Convenios, cupones y recetas de antibióticos, ingresar el número de documento sin guiones.',
+                                      textAlign: TextAlign.justify,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 15.0, 0.0, 0.0),
+                                    child: Text(
+                                      'Salidas de caja, ingresar "SC" antes del nro. de soliciitud.',
+                                      textAlign: TextAlign.justify,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 15.0, 0.0, 0.0),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0, 8.0, 8.0, 8.0),
+                                            child: Container(
+                                              width: double.infinity,
+                                              height: 50.0,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .secondaryBackground,
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                                border: Border.all(
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryText,
+                                                ),
+                                              ),
+                                              child: Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(
+                                                        8.0, 0.0, 8.0, 0.0),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  4.0,
+                                                                  0.0,
+                                                                  4.0,
+                                                                  0.0),
+                                                      child: Icon(
+                                                        Icons.edit_document,
+                                                        color: Colors.blueGrey,
+                                                        size: 24.0,
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      child: Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    4.0,
+                                                                    0.0,
+                                                                    0.0,
+                                                                    0.0),
+                                                        child: TextFormField(
+                                                          controller: _model
+                                                              .textController,
+                                                          onChanged: (_) =>
+                                                              EasyDebounce
+                                                                  .debounce(
+                                                            '_model.textController',
+                                                            Duration(
+                                                                milliseconds:
+                                                                    2000),
+                                                            () =>
+                                                                setState(() {}),
+                                                          ),
+                                                          obscureText: false,
+                                                          decoration:
+                                                              InputDecoration(
+                                                            enabledBorder:
+                                                                UnderlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                color: Color(
+                                                                    0x00000000),
+                                                                width: 1.0,
+                                                              ),
+                                                              borderRadius:
+                                                                  const BorderRadius
+                                                                      .only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        4.0),
+                                                                topRight: Radius
+                                                                    .circular(
+                                                                        4.0),
+                                                              ),
+                                                            ),
+                                                            focusedBorder:
+                                                                UnderlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                color: Color(
+                                                                    0x00000000),
+                                                                width: 1.0,
+                                                              ),
+                                                              borderRadius:
+                                                                  const BorderRadius
+                                                                      .only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        4.0),
+                                                                topRight: Radius
+                                                                    .circular(
+                                                                        4.0),
+                                                              ),
+                                                            ),
+                                                            errorBorder:
+                                                                UnderlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                color: Color(
+                                                                    0x00000000),
+                                                                width: 1.0,
+                                                              ),
+                                                              borderRadius:
+                                                                  const BorderRadius
+                                                                      .only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        4.0),
+                                                                topRight: Radius
+                                                                    .circular(
+                                                                        4.0),
+                                                              ),
+                                                            ),
+                                                            focusedErrorBorder:
+                                                                UnderlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                color: Color(
+                                                                    0x00000000),
+                                                                width: 1.0,
+                                                              ),
+                                                              borderRadius:
+                                                                  const BorderRadius
+                                                                      .only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        4.0),
+                                                                topRight: Radius
+                                                                    .circular(
+                                                                        4.0),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          style: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .bodyMedium,
+                                                          validator: _model
+                                                              .textControllerValidator
+                                                              .asValidator(
+                                                                  context),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                            obscureText: false,
-                                            decoration: InputDecoration(
-                                              enabledBorder:
-                                                  UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: Color(0x00000000),
-                                                  width: 1.0,
-                                                ),
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                  topLeft: Radius.circular(4.0),
-                                                  topRight:
-                                                      Radius.circular(4.0),
-                                                ),
-                                              ),
-                                              focusedBorder:
-                                                  UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: Color(0x00000000),
-                                                  width: 1.0,
-                                                ),
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                  topLeft: Radius.circular(4.0),
-                                                  topRight:
-                                                      Radius.circular(4.0),
-                                                ),
-                                              ),
-                                              errorBorder: UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: Color(0x00000000),
-                                                  width: 1.0,
-                                                ),
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                  topLeft: Radius.circular(4.0),
-                                                  topRight:
-                                                      Radius.circular(4.0),
-                                                ),
-                                              ),
-                                              focusedErrorBorder:
-                                                  UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: Color(0x00000000),
-                                                  width: 1.0,
-                                                ),
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                  topLeft: Radius.circular(4.0),
-                                                  topRight:
-                                                      Radius.circular(4.0),
-                                                ),
-                                              ),
-                                            ),
-                                            style: FlutterFlowTheme.of(context)
-                                                .bodyMedium,
-                                            validator: _model
-                                                .textControllerValidator
-                                                .asValidator(context),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          FFButtonWidget(
-                            onPressed: () {
-                              if (_model.textController.text.isNotEmpty &&
-                                  _model.textController.text.length >= 12) {
-                                if (_model.textController.text
-                                    .contains('002F')) {
-                                  final docId = _model.textController.text;
-                                  _buscarDocumento(docId);
-                                } else {
-                                  final docId =
-                                      "002F" + _model.textController.text;
-                                  _buscarDocumento(docId);
-                                }
-                              } else {
-                                if (_model.textController.text.contains('SC')) {
-                                  final scId = _model.textController.text;
-                                  _buscarDocumento(scId);
-                                } else {
-                                  final scId =
-                                      "SC" + _model.textController.text;
-                                  _buscarDocumento(scId);
-                                }
-                              }
-                            },
-                            text: '',
-                            icon: Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                              child: Icon(
-                                Icons.search,
-                                color: Colors.white,
-                                size: 32.0,
-                              ),
-                            ),
-                            options: FFButtonOptions(
-                              width: 50.0,
-                              height: 50.0,
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 0.0, 0.0),
-                              iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 0.0, 0.0),
-                              color: Colors.indigo,
-                              textStyle: FlutterFlowTheme.of(context)
-                                  .titleSmall
-                                  .override(
-                                    fontFamily: 'Lexend Deca',
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                              elevation: 2.0,
-                              borderSide: BorderSide(
-                                color: Colors.transparent,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 25.0, 0.0, 0.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/lottie_animations/info.gif',
-                              width: 300,
-                              height: 180,
-                              fit: BoxFit.cover,
-                            ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 24.0, 0.0, 0.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Información importante',
-                                    textAlign: TextAlign.center,
-                                    style: FlutterFlowTheme.of(context)
-                                        .headlineSmall
-                                        .override(
-                                          fontFamily: 'Outfit',
-                                          color: Colors.indigo,
-                                          fontSize: 20.0,
-                                          fontWeight: FontWeight.bold,
+                                        FFButtonWidget(
+                                          onPressed: () {
+                                            if (_model.textController.text
+                                                    .isNotEmpty &&
+                                                _model.textController.text
+                                                        .length >=
+                                                    12) {
+                                              if (_model.textController.text
+                                                  .contains('002F')) {
+                                                final docId =
+                                                    _model.textController.text;
+                                                _buscarDocumento(docId);
+                                              } else {
+                                                final docId = "002F" +
+                                                    _model.textController.text;
+                                                _buscarDocumento(docId);
+                                              }
+                                            } else {
+                                              if (_model.textController.text
+                                                  .contains('SC')) {
+                                                final scId =
+                                                    _model.textController.text;
+                                                _buscarDocumento(scId);
+                                              } else {
+                                                final scId = "SC" +
+                                                    _model.textController.text;
+                                                _buscarDocumento(scId);
+                                              }
+                                            }
+                                          },
+                                          text: '',
+                                          icon: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                10, 0, 0, 0),
+                                            child: Icon(
+                                              Icons.search,
+                                              color: Colors.white,
+                                              size: 28.0,
+                                            ),
+                                          ),
+                                          options: FFButtonOptions(
+                                            width: 50.0,
+                                            height: 50.0,
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 0.0),
+                                            iconPadding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 0.0),
+                                            color: Colors.indigo,
+                                            textStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .titleSmall
+                                                    .override(
+                                                      fontFamily: 'Lexend Deca',
+                                                      color: Colors.white,
+                                                      fontSize: 16.0,
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                    ),
+                                            elevation: 2.0,
+                                            borderSide: BorderSide(
+                                              color: Colors.transparent,
+                                              width: 1.0,
+                                            ),
+                                          ),
                                         ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 15.0, 0.0, 0.0),
-                                  child: Text(
-                                    '- Para digitalizar convenios  y cupones por favor ingrese el número de documento sin guiones.',
-                                    textAlign: TextAlign.justify,
-                                    style:
-                                        FlutterFlowTheme.of(context).bodyMedium,
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    0.0, 25.0, 0.0, 0.0),
+                                child: FFButtonWidget(
+                                  onPressed: () {
+                                    _scanBarcode();
+                                  },
+                                  text: 'Escanear',
+                                  icon: Icon(
+                                    Icons.document_scanner_outlined,
+                                    color: Colors.white,
+                                    size: 24.0,
                                   ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 15.0, 0.0, 0.0),
-                                  child: Text(
-                                    '- Para digitalizar salidas de caja por favor ingresar al inicio del código de solicitud las letras SC. ',
-                                    textAlign: TextAlign.justify,
-                                    style:
-                                        FlutterFlowTheme.of(context).bodyMedium,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 25.0, 0.0, 0.0),
-                              child: FFButtonWidget(
-                                onPressed: () {
-                                  _scanBarcode();
-                                },
-                                text: 'Escanear',
-                                options: FFButtonOptions(
-                                  width: 140.0,
-                                  height: 50.0,
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 0.0, 0.0, 0.0),
-                                  iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 0.0, 0.0, 0.0),
-                                  color: Color.fromARGB(255, 150, 220, 50),
-                                  textStyle: FlutterFlowTheme.of(context)
-                                      .titleSmall
-                                      .override(
-                                        fontFamily: 'Lexend Deca',
-                                        color: Colors.white,
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                  elevation: 2.0,
-                                  borderSide: BorderSide(
-                                    color: Colors.transparent,
-                                    width: 1.0,
+                                  options: FFButtonOptions(
+                                    width: 140.0,
+                                    height: 50.0,
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 0.0, 0.0, 0.0),
+                                    iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 0.0, 0.0, 0.0),
+                                    color: Color.fromARGB(255, 150, 220, 50),
+                                    textStyle: FlutterFlowTheme.of(context)
+                                        .titleSmall
+                                        .override(
+                                          fontFamily: 'Lexend Deca',
+                                          color: Colors.white,
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                    elevation: 2.0,
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1.0,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

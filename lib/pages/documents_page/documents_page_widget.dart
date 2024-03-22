@@ -137,29 +137,40 @@ class _DocumentsPageWidgetState extends State<DocumentsPageWidget> {
     }
 
     QuickAlert.show(
-        barrierDismissible: false,
-        context: context,
-        type: QuickAlertType.info,
-        title: 'Atención!',
-        widget: Text(orderMessage,
+      barrierDismissible: false,
+      context: context,
+      type: QuickAlertType.info,
+      title: '¡Atención!',
+      widget: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height *
+              0.4, 
+        ),
+        child: SingleChildScrollView(
+          child: Text(
+            orderMessage,
             style: FlutterFlowTheme.of(context).bodyMedium.override(
                   fontFamily: 'Readex Pro',
                   fontSize: 16.0,
-                )),
-        showCancelBtn: true,
-        confirmBtnText: 'Continuar',
-        cancelBtnText: 'Atras',
-        confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
-        onConfirmBtnTap: () => Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => GalleryPageWidget(
-                  documents: documentStructureArray,
-                  orderDocs: orderDocs,
                 ),
-              ),
-              (route) => false,
-            ));
+          ),
+        ),
+      ),
+      showCancelBtn: true,
+      confirmBtnText: 'Continuar',
+      cancelBtnText: 'Atrás',
+      confirmBtnColor: Color.fromARGB(255, 255, 201, 70),
+      onConfirmBtnTap: () => Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GalleryPageWidget(
+            documents: documentStructureArray,
+            orderDocs: orderDocs,
+          ),
+        ),
+        (route) => false,
+      ),
+    );
   }
 
   void getdynamicCards() {

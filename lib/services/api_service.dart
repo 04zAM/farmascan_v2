@@ -39,7 +39,7 @@ class ApiService {
 
   Future<UserData> loginUser(
       String ipPharma, String username, String password) async {
-    username = username + "_10"; //Control de version _9
+    username = username + "_10"; //Control de version _10
     String ipPhone = await getLocalIp();
 
     try {
