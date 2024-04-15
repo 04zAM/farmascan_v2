@@ -261,6 +261,10 @@ class ApiService {
       if (response.statusCode == 200) {
         final utf8DecodedBody = utf8.decode(response.bodyBytes);
         final decodedBody = json.decode(utf8DecodedBody);
+        final respuesta = decodedBody['respuesta'];
+        if (respuesta == "error"){
+          throw Exception(decodedBody['mensaje']);
+        }
         final documentFields = decodedBody['mensaje'];
         return documentFields;
       } else {
